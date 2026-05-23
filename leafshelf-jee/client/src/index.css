@@ -45,7 +45,8 @@
   }
 
   label {
-    @apply block text-sm text-muted mb-1.5 font-medium;
+    @apply block text-sm mb-1.5 font-medium;
+    color: var(--color-muted);
   }
 
   button {
