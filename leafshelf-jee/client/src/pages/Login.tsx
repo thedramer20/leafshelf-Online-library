@@ -52,21 +52,43 @@ function InputField({ id, type, value, onChange, placeholder, autoComplete, requ
   const isPassword = type === 'password';
   return (
     <div>
-      <label htmlFor={id} className="block text-sm font-semibold text-[#1a3a10] mb-1.5">{label}</label>
+      <label
+        htmlFor={id}
+        className="block text-sm mb-1.5"
+        style={{ color: '#0a1a0a', fontWeight: 700 }}
+      >
+        {label}
+      </label>
       <div className="relative">
-        <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-[#8a9a7a] pointer-events-none">{icon}</span>
+        <span className="absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none"
+              style={{ color: '#6a8a5a' }}>
+          {icon}
+        </span>
         <input
-          id={id} type={isPassword && show ? 'text' : type}
-          value={value} onChange={onChange}
-          required={required} autoComplete={autoComplete} placeholder={placeholder}
-          className="w-full pl-10 pr-10 py-3 rounded-xl border-2 border-[#c9d4b8]
-            bg-white text-[#1a2e1a] text-sm placeholder:text-[#8a9a7a] font-medium
-            focus:ring-2 focus:ring-[#2d6a2e] focus:border-[#2d6a2e]
-            outline-none transition-all"
+          id={id}
+          type={isPassword && show ? 'text' : type}
+          value={value}
+          onChange={onChange}
+          required={required}
+          autoComplete={autoComplete}
+          placeholder={placeholder}
+          className="w-full pl-10 pr-10 py-3 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-700 focus:border-emerald-700 transition-all"
+          style={{
+            backgroundColor: '#ffffff',
+            color: '#0a1a0a',
+            borderWidth: '2px',
+            borderStyle: 'solid',
+            borderColor: '#a8b89a',
+            fontWeight: 500,
+          }}
         />
         {isPassword && (
-          <button type="button" onClick={() => setShow(s => !s)}
-            className="absolute right-3 top-1/2 -translate-y-1/2 text-[#5a7a4a] hover:text-[#2d5016]">
+          <button
+            type="button"
+            onClick={() => setShow(s => !s)}
+            className="absolute right-3 top-1/2 -translate-y-1/2 hover:opacity-70 transition-opacity"
+            style={{ color: '#5a7a4a' }}
+          >
             {show
               ? <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M3.98 8.223A10.477 10.477 0 001.934 12C3.226 16.338 7.244 19.5 12 19.5c.993 0 1.953-.138 2.863-.395M6.228 6.228A10.45 10.45 0 0112 4.5c4.756 0 8.773 3.162 10.065 7.498a10.523 10.523 0 01-4.293 5.774M6.228 6.228L3 3m3.228 3.228l3.65 3.65m7.894 7.894L21 21m-3.228-3.228l-3.65-3.65m0 0a3 3 0 10-4.243-4.243m4.242 4.242L9.88 9.88" /></svg>
               : <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178z" /><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /></svg>
@@ -88,12 +110,10 @@ export default function Login() {
   const { isFirstTime } = useFirstLogin();
   const [tab, setTab] = useState<Tab>('login');
 
-  // Login state
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [rememberMe, setRememberMe] = useState(false);
 
-  // Register state
   const [regName, setRegName] = useState('');
   const [regEmail, setRegEmail] = useState('');
   const [regPassword, setRegPassword] = useState('');
@@ -179,7 +199,7 @@ export default function Login() {
 
   return (
     <div className="relative min-h-screen overflow-hidden">
-      {/* Layer 1: Full-page nature background — video if URL set, else Ken Burns image */}
+      {/* Layer 1: Video background with parallax */}
       {FOREST_VIDEO_URL ? (
         <video
           className="absolute inset-0 w-full h-full object-cover"
@@ -201,9 +221,9 @@ export default function Login() {
           }}
         />
       )}
-      {/* Layer 2: Dark green overlay for readability */}
+      {/* Layer 2: Dark overlay */}
       <div className="absolute inset-0 bg-gradient-to-br from-[#0a1a0a]/70 via-[#1a2e1a]/60 to-[#0f1a0f]/80" />
-      {/* Layer 2b: Aurora color overlay */}
+      {/* Layer 2b: Aurora */}
       <Aurora
         className="z-[3]"
         colors={['#2d6a2e', '#c9a84c', '#1a5c1a', '#8b6914', '#3d8a3e', '#a07820']}
@@ -229,12 +249,9 @@ export default function Login() {
             key={`shaft-${i}`}
             className="absolute top-0 h-screen pointer-events-none"
             style={{
-              left: shaft.left,
-              width: shaft.width,
+              left: shaft.left, width: shaft.width,
               background: 'linear-gradient(to bottom, rgba(255, 230, 150, 0.18), rgba(255, 220, 130, 0.05), transparent)',
-              filter: 'blur(20px)',
-              transform: 'rotate(15deg)',
-              transformOrigin: 'top center',
+              filter: 'blur(20px)', transform: 'rotate(15deg)', transformOrigin: 'top center',
               animation: `lightShaftMove 12s ease-in-out ${shaft.delay} infinite`,
             }}
           />
@@ -244,18 +261,13 @@ export default function Login() {
       {/* Layer 4c: Drifting mist */}
       <div className="absolute bottom-0 left-0 right-0 h-1/3 pointer-events-none overflow-hidden" style={{ zIndex: 5 }}>
         {[0, 1, 2].map(i => (
-          <div
-            key={`mist-${i}`}
-            className="absolute"
+          <div key={`mist-${i}`} className="absolute"
             style={{
-              bottom: `${i * 8}%`,
-              width: '300px',
-              height: '100px',
+              bottom: `${i * 8}%`, width: '300px', height: '100px',
               background: 'radial-gradient(ellipse, rgba(200, 220, 200, 0.3), transparent 70%)',
               filter: 'blur(30px)',
               animation: `mistDrift ${25 + i * 5}s linear ${i * 8}s infinite`,
-            }}
-          />
+            }} />
         ))}
       </div>
 
@@ -263,15 +275,10 @@ export default function Login() {
       <div
         className="absolute pointer-events-none mix-blend-screen"
         style={{
-          left: `${(mousePos.x + 1) * 50}%`,
-          top: `${(mousePos.y + 1) * 50}%`,
-          transform: 'translate(-50%, -50%)',
-          width: '400px',
-          height: '400px',
+          left: `${(mousePos.x + 1) * 50}%`, top: `${(mousePos.y + 1) * 50}%`,
+          transform: 'translate(-50%, -50%)', width: '400px', height: '400px',
           background: 'radial-gradient(circle, rgba(255, 230, 150, 0.12), transparent 60%)',
-          transition: 'all 0.3s ease-out',
-          filter: 'blur(20px)',
-          zIndex: 10,
+          transition: 'all 0.3s ease-out', filter: 'blur(20px)', zIndex: 10,
         }}
       />
 
@@ -288,65 +295,70 @@ export default function Login() {
             <h1 className="text-4xl font-bold text-[#f5f0e8]"
                 style={{ fontFamily: "'Playfair Display', serif" }}>
               {'LeafShelf'.split('').map((letter, i) => (
-                <span
-                  key={i}
-                  className="inline-block"
-                  style={{ animation: `letterReveal 0.5s ease-out ${i * 0.08}s both` }}
-                >
+                <span key={i} className="inline-block"
+                  style={{ animation: `letterReveal 0.5s ease-out ${i * 0.08}s both` }}>
                   {letter}
                 </span>
               ))}
             </h1>
-            <motion.p
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 1.2, duration: 0.6 }}
-              className="text-[#f5f0e8]/60 text-sm mt-2"
-            >
+            <motion.p initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 1.2, duration: 0.6 }} className="text-[#f5f0e8]/60 text-sm mt-2">
               Online Library
             </motion.p>
-            <motion.p
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
+            <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }}
               transition={{ delay: 1.6, duration: 0.8 }}
-              className="text-[#c9a84c]/70 text-xs mt-4 italic tracking-widest uppercase"
-            >
+              className="text-[#c9a84c]/70 text-xs mt-4 italic tracking-widest uppercase">
               Your next chapter awaits
             </motion.p>
           </div>
         </div>
 
-        {/* RIGHT: Glassmorphism form card */}
+        {/* RIGHT: Form card */}
         <div className="w-full max-w-md lg:max-w-lg flex-shrink-0">
-          <div id="login-form" className="relative backdrop-blur-2xl bg-[#f5f0e8]/96 rounded-3xl shadow-2xl border border-[#d4c9a8]/40 p-8 lg:p-10"
-               style={{ animation: 'formBreathe 5s ease-in-out infinite' }}>
+          <div
+            id="login-form"
+            className="relative rounded-3xl p-8 lg:p-10"
+            style={{
+              backgroundColor: 'rgba(245, 240, 232, 0.98)',
+              backdropFilter: 'blur(24px)',
+              WebkitBackdropFilter: 'blur(24px)',
+              border: '1px solid rgba(212, 201, 168, 0.5)',
+              boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.5), 0 0 80px rgba(201, 168, 76, 0.1)',
+              animation: 'formBreathe 5s ease-in-out infinite',
+            }}
+          >
             <BorderBeam size={250} duration={12} colorFrom="#c9a84c" colorTo="#2d6a2e" className="opacity-40" />
+
             {/* Mobile logo */}
             <div className="flex items-center gap-2 mb-4 lg:hidden">
               <Leaf className="w-8 h-8" />
               <span className="font-serif text-lg font-bold text-forest-dark">Leaf<span className="text-gold-dark">Shelf</span></span>
             </div>
 
-            {/* Mobile leaf decoration — visible only when book is hidden */}
+            {/* Mobile leaf */}
             <div className="flex justify-center mb-4 lg:hidden">
               <span className="text-3xl">🍃</span>
             </div>
 
             {/* Tabs */}
-            <div className="flex mb-7 border-b border-[#d4c9a8]">
+            <div className="flex mb-7" style={{ borderBottom: '1px solid rgba(212, 201, 168, 0.6)' }}>
               <button
                 onClick={() => switchTab('login')}
-                className={`pb-3 px-1 mr-6 text-base font-semibold border-b-2 -mb-px whitespace-nowrap transition-colors ${
-                  tab === 'login' ? 'text-[#1a3a10] font-bold border-[#2d5016]' : 'text-[#8a9a7a] border-transparent hover:text-[#1a3a10]'
-                }`}
+                className="pb-3 px-1 mr-6 text-base -mb-px whitespace-nowrap transition-colors"
+                style={tab === 'login'
+                  ? { color: '#1a3a10', fontWeight: 800, borderBottom: '3px solid #2d5016' }
+                  : { color: '#6a8a5a', fontWeight: 700 }
+                }
               >
                 Log In
               </button>
               <button
                 onClick={() => switchTab('register')}
-                className={`pb-3 px-1 text-base font-semibold border-b-2 -mb-px whitespace-nowrap transition-colors ${
-                  tab === 'register' ? 'text-[#1a3a10] font-bold border-[#2d5016]' : 'text-[#8a9a7a] border-transparent hover:text-[#1a3a10]'
-                }`}
+                className="pb-3 px-1 text-base -mb-px whitespace-nowrap transition-colors"
+                style={tab === 'register'
+                  ? { color: '#1a3a10', fontWeight: 800, borderBottom: '3px solid #2d5016' }
+                  : { color: '#6a8a5a', fontWeight: 700 }
+                }
               >
                 Create Account
               </button>
@@ -354,13 +366,20 @@ export default function Login() {
 
             {tab === 'login' ? (
               <>
-                <h2 className="text-2xl font-bold text-[#1a3a10] mb-1"
-                    style={{ fontFamily: "'Playfair Display', serif" }}>
+                <h2 className="text-2xl mb-1"
+                    style={{ color: '#0a1a0a', fontWeight: 800, fontFamily: "'Playfair Display', serif" }}>
                   Sign in to your account
                 </h2>
-                <p className="text-sm text-[#3a5a2a] mt-1 mb-6">Enter your credentials to access your library</p>
+                <p className="text-sm mt-1 mb-6" style={{ color: '#2d4a2a', fontWeight: 500 }}>
+                  Enter your credentials to access your library
+                </p>
 
-                {error && <div className="bg-red-50 text-red-600 border border-red-200 rounded-lg px-4 py-3 mb-5 text-sm">{error}</div>}
+                {error && (
+                  <div className="bg-red-50 border border-red-200 rounded-lg px-4 py-3 mb-5 text-sm"
+                       style={{ color: '#b91c1c' }}>
+                    {error}
+                  </div>
+                )}
 
                 <form onSubmit={handleLogin} className="space-y-4">
                   <InputField id="email" type="email" value={email} onChange={e => setEmail(e.target.value)}
@@ -369,32 +388,54 @@ export default function Login() {
                     placeholder="••••••••" autoComplete="current-password" required label="Password" icon={lockIcon} />
 
                   <div className="flex items-center justify-between pt-0.5">
-                    <label className="flex items-center gap-2 text-sm text-[#1a3a10] cursor-pointer select-none">
+                    <label className="flex items-center gap-2 cursor-pointer select-none">
                       <input type="checkbox" checked={rememberMe} onChange={e => setRememberMe(e.target.checked)}
-                        className="w-4 h-4 rounded border-[#d4c9a8] accent-[#2d5016]" />
-                      Remember me
+                        className="w-4 h-4 rounded accent-[#2d5016]"
+                        style={{ borderColor: '#a8b89a' }} />
+                      <span className="text-sm" style={{ color: '#1a3a10', fontWeight: 600 }}>Remember me</span>
                     </label>
-                    <button type="button" className="text-sm text-[#2d5016] font-semibold hover:underline transition-colors">
+                    <button type="button" className="text-sm underline transition-colors hover:opacity-70"
+                            style={{ color: '#2d5016', fontWeight: 700 }}>
                       Forgot password?
                     </button>
                   </div>
 
-                  <button type="submit" disabled={loading}
-                    className="w-full py-3 rounded-xl bg-[#2d5016] text-white text-base font-bold hover:bg-[#1a3a10] active:scale-[0.98] transition-all disabled:opacity-60 shadow-lg shadow-[#2d5016]/30 mt-1 flex items-center justify-center gap-2">
+                  <button
+                    type="submit"
+                    disabled={loading}
+                    className="w-full py-3.5 rounded-xl text-base hover:opacity-90 active:scale-[0.98] transition-all disabled:opacity-60 mt-1 flex items-center justify-center gap-2"
+                    style={{
+                      backgroundColor: '#2d5016',
+                      color: '#ffffff',
+                      fontWeight: 700,
+                      boxShadow: '0 10px 25px -5px rgba(45, 80, 22, 0.5)',
+                    }}
+                  >
                     {loading ? 'Signing in…' : <><span>Log In</span><span>📖</span></>}
                   </button>
                 </form>
 
                 <div className="flex items-center gap-3 my-5">
-                  <div className="flex-1 h-px bg-[#c9d4b8]" />
-                  <span className="text-sm text-[#5a7a4a] font-medium">or continue with</span>
-                  <div className="flex-1 h-px bg-[#c9d4b8]" />
+                  <div className="flex-1 h-px" style={{ backgroundColor: '#c8d4b8' }} />
+                  <span className="text-sm" style={{ color: '#3a5a2a', fontWeight: 600 }}>or continue with</span>
+                  <div className="flex-1 h-px" style={{ backgroundColor: '#c8d4b8' }} />
                 </div>
 
                 <div className="flex flex-col">
                   {socialButtons.map(({ icon, label }) => (
-                    <button key={label} type="button"
-                      className="w-full py-3 rounded-xl border-2 border-[#c9d4b8] bg-white text-[#1a3a10] text-sm font-semibold hover:bg-[#f0ebe0] active:scale-[0.98] transition-all flex items-center justify-center gap-2 mb-2">
+                    <button
+                      key={label}
+                      type="button"
+                      className="w-full py-3 rounded-xl hover:bg-gray-50 active:scale-[0.98] transition-all flex items-center justify-center gap-3 mb-2"
+                      style={{
+                        backgroundColor: '#ffffff',
+                        color: '#0a1a0a',
+                        borderWidth: '2px',
+                        borderStyle: 'solid',
+                        borderColor: '#a8b89a',
+                        fontWeight: 700,
+                      }}
+                    >
                       {icon} {label}
                     </button>
                   ))}
@@ -402,13 +443,20 @@ export default function Login() {
               </>
             ) : (
               <>
-                <h2 className="text-2xl font-bold text-[#1a3a10] mb-1"
-                    style={{ fontFamily: "'Playfair Display', serif" }}>
+                <h2 className="text-2xl mb-1"
+                    style={{ color: '#0a1a0a', fontWeight: 800, fontFamily: "'Playfair Display', serif" }}>
                   Create your account
                 </h2>
-                <p className="text-sm text-[#3a5a2a] mt-1 mb-6">Join thousands of readers on LeafShelf</p>
+                <p className="text-sm mt-1 mb-6" style={{ color: '#2d4a2a', fontWeight: 500 }}>
+                  Join thousands of readers on LeafShelf
+                </p>
 
-                {error && <div className="bg-red-50 text-red-600 border border-red-200 rounded-lg px-4 py-3 mb-5 text-sm">{error}</div>}
+                {error && (
+                  <div className="bg-red-50 border border-red-200 rounded-lg px-4 py-3 mb-5 text-sm"
+                       style={{ color: '#b91c1c' }}>
+                    {error}
+                  </div>
+                )}
 
                 <form onSubmit={handleRegister} className="space-y-4">
                   <InputField id="reg-name" type="text" value={regName} onChange={e => setRegName(e.target.value)}
@@ -420,21 +468,42 @@ export default function Login() {
                   <InputField id="reg-confirm" type="password" value={regConfirm} onChange={e => setRegConfirm(e.target.value)}
                     placeholder="••••••••" autoComplete="new-password" required label="Confirm Password" icon={lockIcon} />
 
-                  <button type="submit" disabled={loading}
-                    className="w-full py-3 rounded-xl bg-[#2d5016] text-white text-base font-bold hover:bg-[#1a3a10] active:scale-[0.98] transition-all disabled:opacity-60 shadow-lg shadow-[#2d5016]/30 mt-1 flex items-center justify-center">
+                  <button
+                    type="submit"
+                    disabled={loading}
+                    className="w-full py-3.5 rounded-xl text-base hover:opacity-90 active:scale-[0.98] transition-all disabled:opacity-60 mt-1 flex items-center justify-center"
+                    style={{
+                      backgroundColor: '#2d5016',
+                      color: '#ffffff',
+                      fontWeight: 700,
+                      boxShadow: '0 10px 25px -5px rgba(45, 80, 22, 0.5)',
+                    }}
+                  >
                     {loading ? 'Creating account…' : 'Create Account'}
                   </button>
                 </form>
 
                 <div className="flex items-center gap-3 my-5">
-                  <div className="flex-1 h-px bg-[#c9d4b8]" />
-                  <span className="text-sm text-[#5a7a4a] font-medium">or continue with</span>
-                  <div className="flex-1 h-px bg-[#c9d4b8]" />
+                  <div className="flex-1 h-px" style={{ backgroundColor: '#c8d4b8' }} />
+                  <span className="text-sm" style={{ color: '#3a5a2a', fontWeight: 600 }}>or continue with</span>
+                  <div className="flex-1 h-px" style={{ backgroundColor: '#c8d4b8' }} />
                 </div>
+
                 <div className="flex flex-col">
                   {socialButtons.map(({ icon, label }) => (
-                    <button key={label} type="button"
-                      className="w-full py-3 rounded-xl border-2 border-[#c9d4b8] bg-white text-[#1a3a10] text-sm font-semibold hover:bg-[#f0ebe0] active:scale-[0.98] transition-all flex items-center justify-center gap-2 mb-2">
+                    <button
+                      key={label}
+                      type="button"
+                      className="w-full py-3 rounded-xl hover:bg-gray-50 active:scale-[0.98] transition-all flex items-center justify-center gap-3 mb-2"
+                      style={{
+                        backgroundColor: '#ffffff',
+                        color: '#0a1a0a',
+                        borderWidth: '2px',
+                        borderStyle: 'solid',
+                        borderColor: '#a8b89a',
+                        fontWeight: 700,
+                      }}
+                    >
                       {icon} {label}
                     </button>
                   ))}
@@ -442,17 +511,29 @@ export default function Login() {
               </>
             )}
 
-            <p className="mt-5 text-center text-sm text-[#3a5a2a]">
+            <p className="mt-5 text-center text-sm" style={{ color: '#2d4a2a', fontWeight: 500 }}>
               {tab === 'login' ? (
-                <>Don't have an account?{' '}<button onClick={() => switchTab('register')} className="text-[#2d5016] font-bold hover:underline">Create Account</button></>
+                <>Don't have an account?{' '}
+                  <button onClick={() => switchTab('register')} className="underline hover:opacity-70 transition-opacity"
+                          style={{ color: '#2d5016', fontWeight: 800 }}>
+                    Create Account
+                  </button>
+                </>
               ) : (
-                <>Already have an account?{' '}<button onClick={() => switchTab('login')} className="text-[#2d5016] font-bold hover:underline">Log In</button></>
+                <>Already have an account?{' '}
+                  <button onClick={() => switchTab('login')} className="underline hover:opacity-70 transition-opacity"
+                          style={{ color: '#2d5016', fontWeight: 800 }}>
+                    Log In
+                  </button>
+                </>
               )}
             </p>
-            <p className="mt-3 text-center text-xs text-[#5a7a4a]">
+            <p className="mt-3 text-center text-xs" style={{ color: '#3a5a2a', fontWeight: 500 }}>
               By continuing, you agree to our{' '}
-              <span className="text-[#2d5016] font-medium underline cursor-pointer hover:text-[#1a3a10] transition-colors">Terms</span>{' '}and{' '}
-              <span className="text-[#2d5016] font-medium underline cursor-pointer hover:text-[#1a3a10] transition-colors">Privacy Policy</span>
+              <span className="underline cursor-pointer hover:opacity-70 transition-opacity"
+                    style={{ color: '#2d5016', fontWeight: 700 }}>Terms</span>{' '}and{' '}
+              <span className="underline cursor-pointer hover:opacity-70 transition-opacity"
+                    style={{ color: '#2d5016', fontWeight: 700 }}>Privacy Policy</span>
             </p>
           </div>
         </div>
@@ -462,17 +543,13 @@ export default function Login() {
       {[...Array(10)].map((_, i) => {
         const leafEmojis = ['🍃', '🍂', '🍃', '🍂', '🍃'];
         return (
-          <div
-            key={`leaf-${i}`}
-            className="absolute pointer-events-none z-10 select-none"
+          <div key={`leaf-${i}`} className="absolute pointer-events-none z-10 select-none"
             style={{
-              left: `${5 + (i * 9) % 90}%`,
-              top: '-40px',
+              left: `${5 + (i * 9) % 90}%`, top: '-40px',
               fontSize: `${14 + (i % 4) * 5}px`,
               color: `rgba(${i % 2 ? '180, 200, 130' : '201, 168, 76'}, 0.5)`,
               animation: `leafFallSwirl ${10 + (i % 5) * 2}s linear ${i * 1.2}s infinite, windGust ${8 + (i % 3)}s ease-in-out ${i * 0.5}s infinite`,
-            }}
-          >
+            }}>
             {leafEmojis[i % leafEmojis.length]}
           </div>
         );
@@ -485,17 +562,12 @@ export default function Login() {
         { bottom: '8%', left: '4%', size: 32 },
         { bottom: '12%', right: '8%', size: 24 },
       ].map((pos, i) => (
-        <div
-          key={`sway-${i}`}
-          className="absolute pointer-events-none z-10 select-none"
+        <div key={`sway-${i}`} className="absolute pointer-events-none z-10 select-none"
           style={{
-            ...pos,
-            fontSize: `${pos.size}px`,
-            color: 'rgba(150, 180, 110, 0.35)',
+            ...pos, fontSize: `${pos.size}px`, color: 'rgba(150, 180, 110, 0.35)',
             transformOrigin: 'top center',
             animation: `leafSway ${5 + i}s ease-in-out ${i * 0.7}s infinite`,
-          }}
-        >
+          }}>
           🍃
         </div>
       ))}
