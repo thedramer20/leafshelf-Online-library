@@ -6,12 +6,11 @@ import { useAuth } from '../lib/auth';
 import Leaf from '../components/Leaf';
 import { useFirstLogin } from '../hooks/useFirstLogin';
 import { Particles } from '../components/magicui/particles';
-import { Book3D } from '../components/Book3D';
 import { BorderBeam } from '../components/magicui/border-beam';
 import { Aurora } from '../components/magicui/aurora';
 
-const VIDEO_SRC = 'https://videos.pexels.com/video-files/2491284/2491284-uhd_2732_1440_24fps.mp4';
-const VIDEO_POSTER = 'https://images.unsplash.com/photo-1448375240586-882707db888b?w=1920&q=80';
+const VIDEO_SRC = 'https://videos.pexels.com/video-files/4763824/4763824-uhd_2560_1440_24fps.mp4';
+const VIDEO_POSTER = 'https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?w=1920&q=80';
 
 type Tab = 'login' | 'register';
 type LocationState = { from?: { pathname: string } };
@@ -206,15 +205,20 @@ export default function Login() {
         className="absolute inset-0 w-full h-full object-cover"
         poster={VIDEO_POSTER}
         style={{
-          filter: 'brightness(0.7) saturate(1.3) contrast(1.1) hue-rotate(-5deg)',
+          filter: 'brightness(0.85) saturate(1.1) contrast(1.05)',
           transform: `translate(${mousePos.x * -10}px, ${mousePos.y * -10}px) scale(1.05)`,
           transition: 'transform 0.5s ease-out',
         }}
       >
         <source src={VIDEO_SRC} type="video/mp4" />
       </video>
-      {/* Layer 2: Dark overlay */}
-      <div className="absolute inset-0 bg-gradient-to-br from-[#0a1a0a]/65 via-[#1a2e1a]/55 to-[#0f1a0f]/75 z-[1]" />
+      {/* Layer 2: Warm meadow overlay */}
+      <div
+        className="absolute inset-0 z-[1]"
+        style={{
+          background: 'linear-gradient(135deg, rgba(50, 80, 30, 0.25) 0%, rgba(180, 200, 100, 0.1) 50%, rgba(50, 80, 30, 0.3) 100%)'
+        }}
+      />
       {/* Layer 2a: Aurora color overlay */}
       <div
         className="absolute inset-0 z-[2] pointer-events-none opacity-30"
@@ -259,7 +263,7 @@ export default function Login() {
       <Particles className="absolute inset-0 z-10" quantity={10} ease={70} color="#c9a84c" size={0.8} refresh={false} />
       {/* Layer 4: Vignette */}
       <div className="absolute inset-0 z-10 pointer-events-none"
-           style={{ background: 'radial-gradient(ellipse at center, transparent 40%, rgba(10,20,10,0.6) 100%)' }} />
+           style={{ background: 'radial-gradient(ellipse at center, transparent 50%, rgba(50,80,30,0.35) 100%)' }} />
 
       {/* Layer 4b: Light shafts */}
       <div className="absolute inset-0 pointer-events-none overflow-hidden" style={{ zIndex: 5 }}>
@@ -307,15 +311,10 @@ export default function Login() {
 
       {/* Layer 5: Content */}
       <div className="relative z-20 min-h-screen flex items-center justify-between max-w-7xl mx-auto px-8 lg:px-16 py-12">
-        {/* LEFT: Book + brand (desktop only) */}
+        {/* LEFT: Brand + quote — falling books visual feature replaces Book3D (RABEN-1) */}
         <div className="hidden lg:flex flex-col items-center gap-8 flex-1">
-          <div id="book-area">
-            <Book3D onComplete={() => {
-              document.querySelector('#login-form')?.scrollIntoView({ behavior: 'smooth' });
-            }} />
-          </div>
-          <div className="text-center">
-            <h1 className="text-4xl font-bold text-[#f5f0e8]"
+          <div className="text-center max-w-xs">
+            <h1 className="text-5xl font-bold text-[#f5f0e8] drop-shadow-lg"
                 style={{ fontFamily: "'Playfair Display', serif" }}>
               {'LeafShelf'.split('').map((letter, i) => (
                 <span key={i} className="inline-block"
@@ -330,8 +329,14 @@ export default function Login() {
             </motion.p>
             <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }}
               transition={{ delay: 1.6, duration: 0.8 }}
-              className="text-[#c9a84c]/70 text-xs mt-4 italic tracking-widest uppercase">
-              Your next chapter awaits
+              className="text-[#e8f5c8]/70 text-base mt-8 italic leading-relaxed"
+              style={{ fontFamily: "'Playfair Display', serif" }}>
+              "A reader lives a thousand lives<br />before he dies."
+            </motion.p>
+            <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }}
+              transition={{ delay: 2.0, duration: 0.8 }}
+              className="text-[#c9a84c]/60 text-xs mt-3 tracking-widest uppercase">
+              — George R.R. Martin
             </motion.p>
           </div>
         </div>
@@ -562,38 +567,8 @@ export default function Login() {
         </div>
       </div>
 
-      {/* Layer 6: Swirling falling leaves */}
-      {[...Array(10)].map((_, i) => {
-        const leafEmojis = ['🍃', '🍂', '🍃', '🍂', '🍃'];
-        return (
-          <div key={`leaf-${i}`} className="absolute pointer-events-none z-10 select-none"
-            style={{
-              left: `${5 + (i * 9) % 90}%`, top: '-40px',
-              fontSize: `${14 + (i % 4) * 5}px`,
-              color: `rgba(${i % 2 ? '180, 200, 130' : '201, 168, 76'}, 0.5)`,
-              animation: `leafFallSwirl ${10 + (i % 5) * 2}s linear ${i * 1.2}s infinite, windGust ${8 + (i % 3)}s ease-in-out ${i * 0.5}s infinite`,
-            }}>
-            {leafEmojis[i % leafEmojis.length]}
-          </div>
-        );
-      })}
-
-      {/* Layer 7: Swaying corner leaf clusters */}
-      {[
-        { top: '5%', left: '2%', size: 36 },
-        { top: '15%', right: '3%', size: 28 },
-        { bottom: '8%', left: '4%', size: 32 },
-        { bottom: '12%', right: '8%', size: 24 },
-      ].map((pos, i) => (
-        <div key={`sway-${i}`} className="absolute pointer-events-none z-10 select-none"
-          style={{
-            ...pos, fontSize: `${pos.size}px`, color: 'rgba(150, 180, 110, 0.35)',
-            transformOrigin: 'top center',
-            animation: `leafSway ${5 + i}s ease-in-out ${i * 0.7}s infinite`,
-          }}>
-          🍃
-        </div>
-      ))}
+      {/* Layer 6: Falling leaves — disabled for meadow scene (RABEN-1) */}
+      {/* Layer 7: Corner sway leaves — disabled for meadow scene (RABEN-1) */}
     </div>
   );
 }
