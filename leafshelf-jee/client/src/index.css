@@ -104,6 +104,12 @@ input:-webkit-autofill:active {
   transition: background-color 9999s ease-in-out 0s !important;
 }
 
+/* 3D book floating animation */
+@keyframes bookFloat {
+  0%, 100% { transform: translateY(0px) rotateY(-8deg) rotateX(5deg); }
+  50%       { transform: translateY(-14px) rotateY(-8deg) rotateX(3deg); }
+}
+
 /* Subtle entrance for page content */
 .fade-in {
   animation: fadeIn 0.4s ease-out;
