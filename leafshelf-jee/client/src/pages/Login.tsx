@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { motion } from 'motion/react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { apiErrorMessage } from '../lib/api';
 import { useAuth } from '../lib/auth';
@@ -6,6 +7,7 @@ import Leaf from '../components/Leaf';
 import { useFirstLogin } from '../hooks/useFirstLogin';
 import { Particles } from '../components/magicui/particles';
 import { Book3D } from '../components/Book3D';
+import { BorderBeam } from '../components/magicui/border-beam';
 
 type Tab = 'login' | 'register';
 type LocationState = { from?: { pathname: string } };
@@ -106,6 +108,23 @@ export default function Login() {
     }
     window.addEventListener('mousemove', handleMouse);
     return () => window.removeEventListener('mousemove', handleMouse);
+  }, []);
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      const leaf = document.createElement('div');
+      leaf.textContent = '🍃';
+      const startTop = 20 + Math.random() * 40;
+      leaf.style.cssText = `position:fixed;top:${startTop}%;left:-50px;font-size:${20 + Math.random() * 20}px;color:rgba(180,200,130,0.7);pointer-events:none;z-index:30;transition:all 3s linear;`;
+      document.body.appendChild(leaf);
+      setTimeout(() => {
+        leaf.style.left = 'calc(100vw + 100px)';
+        leaf.style.top = `${startTop + 15}%`;
+        leaf.style.transform = 'rotate(720deg)';
+      }, 50);
+      setTimeout(() => leaf.remove(), 3500);
+    }, 15000);
+    return () => clearInterval(interval);
   }, []);
 
   async function handleLogin(e: React.FormEvent) {
@@ -243,20 +262,42 @@ export default function Login() {
             }} />
           </div>
           <div className="text-center">
-            <h1 className="text-3xl font-bold text-[#f5f0e8]"
+            <h1 className="text-4xl font-bold text-[#f5f0e8]"
                 style={{ fontFamily: "'Playfair Display', serif" }}>
-              LeafShelf
+              {'LeafShelf'.split('').map((letter, i) => (
+                <span
+                  key={i}
+                  className="inline-block"
+                  style={{ animation: `letterReveal 0.5s ease-out ${i * 0.08}s both` }}
+                >
+                  {letter}
+                </span>
+              ))}
             </h1>
-            <p className="text-[#f5f0e8]/50 text-sm mt-1">Online Library</p>
-            <p className="text-[#c9a84c]/60 text-xs mt-3 italic tracking-wide">
+            <motion.p
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 1.2, duration: 0.6 }}
+              className="text-[#f5f0e8]/60 text-sm mt-2"
+            >
+              Online Library
+            </motion.p>
+            <motion.p
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 1.6, duration: 0.8 }}
+              className="text-[#c9a84c]/70 text-xs mt-4 italic tracking-widest uppercase"
+            >
               Your next chapter awaits
-            </p>
+            </motion.p>
           </div>
         </div>
 
         {/* RIGHT: Glassmorphism form card */}
         <div className="w-full max-w-md lg:max-w-lg flex-shrink-0">
-          <div id="login-form" className="backdrop-blur-2xl bg-[#f5f0e8]/96 rounded-3xl shadow-2xl border border-[#d4c9a8]/40 p-8 lg:p-10">
+          <div id="login-form" className="relative backdrop-blur-2xl bg-[#f5f0e8]/96 rounded-3xl shadow-2xl border border-[#d4c9a8]/40 p-8 lg:p-10"
+               style={{ animation: 'formBreathe 5s ease-in-out infinite' }}>
+            <BorderBeam size={250} duration={12} colorFrom="#c9a84c" colorTo="#2d6a2e" className="opacity-40" />
             {/* Mobile logo */}
             <div className="flex items-center gap-2 mb-4 lg:hidden">
               <Leaf className="w-8 h-8" />
