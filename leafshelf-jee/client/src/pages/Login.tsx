@@ -10,8 +10,7 @@ import { Book3D } from '../components/Book3D';
 import { BorderBeam } from '../components/magicui/border-beam';
 import { Aurora } from '../components/magicui/aurora';
 
-// Replace with your Pexels forest video direct MP4 URL
-const FOREST_VIDEO_URL = '';
+const FOREST_VIDEO_URL = 'https://videos.pexels.com/video-files/852335/852335-hd_1920_1080_24fps.mp4';
 
 type Tab = 'login' | 'register';
 type LocationState = { from?: { pathname: string } };
