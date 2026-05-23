@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { borrow, listBooks, listCategories } from '../lib/api';
 import { useAuth } from '../lib/auth';
 import type { Book } from '../lib/types';
+import { VintageBookCover } from '../components/VintageBookCover';
 
 function Stars({ rating }: { rating: number }) {
   return (
@@ -265,12 +266,13 @@ export default function Home() {
             </div>
           </div>
           <div className="hidden lg:flex items-center justify-center w-64 h-full absolute right-0 top-0 bottom-0 pr-6">
-            <div className="relative">
-              <div className="w-28 h-40 bg-forest-dark/20 rounded-xl rotate-[-8deg] absolute -left-4 top-2" />
-              <div className="w-28 h-40 bg-gold/40 rounded-xl rotate-[4deg] absolute left-4 top-0" />
-              <div className="w-28 h-40 bg-white/60 rounded-xl relative z-10 flex items-center justify-center shadow-soft">
-                <span className="text-4xl">📚</span>
-              </div>
+            <div className="relative" style={{ filter: 'drop-shadow(0 20px 40px rgba(0,0,0,0.25))' }}>
+              <div className="absolute -bottom-2 left-1/2 -translate-x-1/2 w-24 h-3 bg-black/20 rounded-full blur-lg" />
+              <VintageBookCover
+                title={user?.name.split(' ')[0] ?? 'LeafShelf'}
+                subtitle="Reader"
+                size="md"
+              />
             </div>
           </div>
         </div>

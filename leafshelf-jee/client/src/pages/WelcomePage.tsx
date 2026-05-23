@@ -7,6 +7,7 @@ import { OrbitingCircles } from '../components/magicui/orbiting-circles';
 import { BlurFade } from '../components/magicui/blur-fade';
 import { BorderBeam } from '../components/magicui/border-beam';
 import Leaf from '../components/Leaf';
+import { VintageBookCover } from '../components/VintageBookCover';
 
 export default function WelcomePage() {
   const navigate = useNavigate();
@@ -138,6 +139,14 @@ export default function WelcomePage() {
           >
             Your next chapter awaits
           </p>
+        </BlurFade>
+
+        {/* Vintage book — premium card */}
+        <BlurFade delay={1.9} inView>
+          <div className="mt-8 flex justify-center"
+               style={{ filter: 'drop-shadow(0 20px 50px rgba(201,168,76,0.3))' }}>
+            <VintageBookCover title="LeafShelf" subtitle="Premium" size="md" />
+          </div>
         </BlurFade>
 
         {/* Feature hints */}

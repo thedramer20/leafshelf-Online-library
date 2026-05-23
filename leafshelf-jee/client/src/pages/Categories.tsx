@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { borrow, listBooks, listCategories } from '../lib/api';
 import { useAuth } from '../lib/auth';
 import type { Book } from '../lib/types';
+import { VintageBookCover } from '../components/VintageBookCover';
 
 const CAT_EMOJI: Record<string, string> = {
   Classic: '📚', Fantasy: '✨', Dystopian: '⚠️', Fiction: '💡',
@@ -221,12 +222,13 @@ export default function Categories() {
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M17.593 3.322c1.1.128 1.907 1.077 1.907 2.185V21L12 17.25 4.5 21V5.507c0-1.108.806-2.057 1.907-2.185a48.507 48.507 0 0111.186 0z" />
               </svg>
             </div>
-            <div className="rounded-lg overflow-hidden mb-3 cursor-pointer" style={{ paddingBottom: '130%', position: 'relative' }}
+            <div className="mb-3 flex justify-center cursor-pointer"
               onClick={() => navigate(`/books/${featured.id}`)}>
-              {featured.cover_url
-                ? <img src={featured.cover_url} alt={featured.title} className="absolute inset-0 w-full h-full object-cover" />
-                : <div className="absolute inset-0 bg-gradient-to-br from-forest-dark to-forest-dark/60 flex items-center justify-center"><span className="text-4xl">📚</span></div>
-              }
+              <VintageBookCover
+                title={featured.title}
+                subtitle={featured.author}
+                size="md"
+              />
             </div>
             <h3 className="font-serif text-sm font-bold text-ink line-clamp-2">{featured.title}</h3>
             <p className="text-[11px] text-muted italic mt-0.5">by {featured.author}</p>
