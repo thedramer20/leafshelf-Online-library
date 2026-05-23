@@ -17,6 +17,7 @@ import Support from './pages/Support';
 import AdminDashboard from './pages/AdminDashboard';
 import Downloads from './pages/Downloads';
 import NotFound from './pages/NotFound';
+import WelcomePage from './pages/WelcomePage';
 
 function MainLayout() {
   return (
@@ -53,6 +54,7 @@ export default function App() {
       {/* Full-screen pages — no sidebar */}
       <Route path="/login" element={<Login />} />
       <Route path="/register" element={<Register />} />
+      <Route path="/welcome" element={<WelcomePage />} />
 
       {/* Admin layout */}
       <Route element={<AdminLayout />}>

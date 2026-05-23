@@ -3,6 +3,7 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import { apiErrorMessage } from '../lib/api';
 import { useAuth } from '../lib/auth';
 import Leaf from '../components/Leaf';
+import { useFirstLogin } from '../hooks/useFirstLogin';
 
 type Tab = 'login' | 'register';
 type LocationState = { from?: { pathname: string } };
@@ -88,6 +89,7 @@ export default function Login() {
   const location = useLocation();
   const from = (location.state as LocationState | null)?.from?.pathname ?? '/';
 
+  const { isFirstTime } = useFirstLogin();
   const [tab, setTab] = useState<Tab>('login');
 
   // Login state
@@ -109,7 +111,7 @@ export default function Login() {
     setLoading(true); setError(null);
     try {
       await signIn(email.trim().toLowerCase(), password);
-      navigate(from, { replace: true });
+      navigate(isFirstTime ? '/welcome' : from, { replace: true });
     } catch (err) {
       setError(apiErrorMessage(err));
     } finally { setLoading(false); }
@@ -121,7 +123,7 @@ export default function Login() {
     setLoading(true); setError(null);
     try {
       await signUp(regName.trim(), regEmail.trim().toLowerCase(), regPassword);
-      navigate(from, { replace: true });
+      navigate('/welcome', { replace: true });
     } catch (err) {
       setError(apiErrorMessage(err));
     } finally { setLoading(false); }
