@@ -8,6 +8,15 @@
         "@magicuidesign/mcp@latest"
       ],
       "env": {}
+    },
+    "shadcn-ui": {
+      "type": "stdio",
+      "command": "npx",
+      "args": [
+        "-y",
+        "shadcn-ui-mcp-server"
+      ],
+      "env": {}
     }
   }
 }

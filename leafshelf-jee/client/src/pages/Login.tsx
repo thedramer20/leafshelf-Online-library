@@ -5,7 +5,6 @@ import { useAuth } from '../lib/auth';
 import Leaf from '../components/Leaf';
 import { useFirstLogin } from '../hooks/useFirstLogin';
 import { Particles } from '../components/magicui/particles';
-import { BlurFade } from '../components/magicui/blur-fade';
 import { Book3D } from '../components/Book3D';
 
 type Tab = 'login' | 'register';
@@ -145,67 +144,53 @@ export default function Login() {
   ];
 
   return (
-    <div className="flex h-screen overflow-hidden">
-      {/* Left branding panel — dark forest scene (desktop only) */}
-      <div className="hidden lg:flex lg:w-1/2 relative overflow-hidden items-center justify-center"
-           style={{ background: 'linear-gradient(160deg, #0a1a0a 0%, #0f2a14 40%, #142010 100%)' }}>
-        {/* Green particles */}
-        <Particles className="absolute inset-0 z-0" quantity={40} ease={90} color="#2d6a2e" refresh={false} size={0.5} />
-        {/* Gold accent particles */}
-        <Particles className="absolute inset-0 z-0" quantity={12} ease={70} color="#c9a84c" refresh={false} size={0.7} />
-        {/* Dot pattern overlay */}
-        <div className="absolute inset-0 opacity-[0.03] z-0"
-             style={{ backgroundImage: 'radial-gradient(circle, #2d6a2e 1px, transparent 1px)', backgroundSize: '30px 30px' }} />
-        {/* Warm spotlight */}
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-96 h-96 rounded-full z-0 blur-3xl"
-             style={{ background: 'radial-gradient(circle, rgba(201,168,76,0.25) 0%, transparent 70%)', opacity: 0.6 }} />
-        {/* Vignette edges */}
-        <div className="absolute inset-0 z-[1] pointer-events-none"
-             style={{ background: 'radial-gradient(ellipse at center, transparent 50%, rgba(10,20,10,0.8) 100%)' }} />
-        {/* Falling leaf shapes */}
-        {[...Array(6)].map((_, i) => (
-          <div
-            key={i}
-            className="absolute text-green-500/15 pointer-events-none z-0"
-            style={{
-              left: `${10 + i * 15}%`,
-              top: `-${20 + i * 10}px`,
-              fontSize: `${14 + i * 3}px`,
-              animation: `leafFall ${8 + i * 3}s linear ${i * 1.5}s infinite`,
-              transform: `rotate(${i * 40}deg)`,
-            }}
-          >
-            🍂
+    <div className="relative min-h-screen overflow-hidden">
+      {/* Layer 1: Full-page nature background image */}
+      <div
+        className="absolute inset-0 bg-cover bg-center bg-no-repeat"
+        style={{
+          backgroundImage: `url('https://images.unsplash.com/photo-1448375240586-882707db888b?w=1920&q=80')`,
+        }}
+      />
+      {/* Layer 2: Dark green overlay for readability */}
+      <div className="absolute inset-0 bg-gradient-to-br from-[#0a1a0a]/70 via-[#1a2e1a]/60 to-[#0f1a0f]/80" />
+      {/* Layer 3: Particles */}
+      <Particles className="absolute inset-0 z-10" quantity={40} ease={90} color="#2d6a2e" size={0.5} refresh={false} />
+      <Particles className="absolute inset-0 z-10" quantity={10} ease={70} color="#c9a84c" size={0.8} refresh={false} />
+      {/* Layer 4: Vignette */}
+      <div className="absolute inset-0 z-10 pointer-events-none"
+           style={{ background: 'radial-gradient(ellipse at center, transparent 40%, rgba(10,20,10,0.6) 100%)' }} />
+
+      {/* Layer 5: Content */}
+      <div className="relative z-20 min-h-screen flex items-center justify-between max-w-7xl mx-auto px-8 lg:px-16 py-12">
+        {/* LEFT: Book + brand (desktop only) */}
+        <div className="hidden lg:flex flex-col items-center gap-8 flex-1">
+          <div id="book-area">
+            <Book3D onComplete={() => {
+              document.querySelector('#login-form')?.scrollIntoView({ behavior: 'smooth' });
+            }} />
           </div>
-        ))}
-        {/* 3D Book */}
-        <div className="relative z-10">
-          <Book3D onComplete={() => {
-            document.querySelector('#login-form')?.scrollIntoView({ behavior: 'smooth' });
-          }} />
-        </div>
-        {/* Bottom brand text */}
-        <div className="absolute bottom-8 left-8 z-10">
-          <BlurFade delay={0.3} inView>
-            <h2 className="text-2xl font-bold text-[#f5f0e8]/90"
+          <div className="text-center">
+            <h1 className="text-3xl font-bold text-[#f5f0e8]"
                 style={{ fontFamily: "'Playfair Display', serif" }}>
               LeafShelf
-            </h2>
-            <p className="text-sm text-[#f5f0e8]/40 mt-1">Online Library</p>
-          </BlurFade>
-        </div>
-      </div>
-
-      {/* Right form panel */}
-      <div className="flex-1 flex items-center justify-center px-6 py-10 overflow-y-auto" style={{ backgroundColor: '#F5F0E8' }}>
-        <div className="w-full max-w-[420px]">
-
-          <div className="flex items-center gap-2 mb-8 lg:hidden">
-            <Leaf className="w-8 h-8" />
-            <span className="font-serif text-lg font-bold text-forest-dark">Leaf<span className="text-gold-dark">Shelf</span></span>
+            </h1>
+            <p className="text-[#f5f0e8]/50 text-sm mt-1">Online Library</p>
+            <p className="text-[#c9a84c]/60 text-xs mt-3 italic tracking-wide">
+              Your next chapter awaits
+            </p>
           </div>
+        </div>
 
-          <div id="login-form" className="bg-white rounded-2xl border border-border shadow-[0_4px_24px_rgba(0,0,0,0.08)] max-w-[420px] p-8">
+        {/* RIGHT: Glassmorphism form card */}
+        <div className="w-full max-w-md lg:max-w-lg flex-shrink-0">
+          <div id="login-form" className="backdrop-blur-xl bg-white/85 rounded-3xl shadow-2xl border border-white/30 p-8 lg:p-10">
+            {/* Mobile logo */}
+            <div className="flex items-center gap-2 mb-6 lg:hidden">
+              <Leaf className="w-8 h-8" />
+              <span className="font-serif text-lg font-bold text-forest-dark">Leaf<span className="text-gold-dark">Shelf</span></span>
+            </div>
+
             {/* Tabs */}
             <div className="flex mb-7 border-b border-border">
               <button
@@ -309,22 +294,38 @@ export default function Login() {
                 </div>
               </>
             )}
-          </div>
 
-          <p className="mt-5 text-center text-xs text-muted">
-            {tab === 'login' ? (
-              <>Don't have an account?{' '}<button onClick={() => switchTab('register')} className="text-forest-dark font-semibold hover:text-forest transition-colors">Create Account</button></>
-            ) : (
-              <>Already have an account?{' '}<button onClick={() => switchTab('login')} className="text-forest-dark font-semibold hover:text-forest transition-colors">Log In</button></>
-            )}
-          </p>
-          <p className="mt-3 text-center text-xs text-muted/60">
-            By continuing, you agree to our{' '}
-            <span className="underline cursor-pointer hover:text-muted transition-colors">Terms</span>{' '}and{' '}
-            <span className="underline cursor-pointer hover:text-muted transition-colors">Privacy Policy</span>
-          </p>
+            <p className="mt-5 text-center text-xs text-muted">
+              {tab === 'login' ? (
+                <>Don't have an account?{' '}<button onClick={() => switchTab('register')} className="text-forest-dark font-semibold hover:text-forest transition-colors">Create Account</button></>
+              ) : (
+                <>Already have an account?{' '}<button onClick={() => switchTab('login')} className="text-forest-dark font-semibold hover:text-forest transition-colors">Log In</button></>
+              )}
+            </p>
+            <p className="mt-3 text-center text-xs text-muted/60">
+              By continuing, you agree to our{' '}
+              <span className="underline cursor-pointer hover:text-muted transition-colors">Terms</span>{' '}and{' '}
+              <span className="underline cursor-pointer hover:text-muted transition-colors">Privacy Policy</span>
+            </p>
+          </div>
         </div>
       </div>
+
+      {/* Layer 6: Falling leaf shapes */}
+      {[...Array(6)].map((_, i) => (
+        <div
+          key={i}
+          className="absolute text-green-300/10 pointer-events-none z-10"
+          style={{
+            left: `${10 + i * 15}%`,
+            top: '-30px',
+            fontSize: `${16 + i * 3}px`,
+            animation: `leafFall ${9 + i * 3}s linear ${i * 1.8}s infinite`,
+          }}
+        >
+          🍂
+        </div>
+      ))}
     </div>
   );
 }
