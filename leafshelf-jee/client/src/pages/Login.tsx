@@ -6,6 +6,7 @@ import Leaf from '../components/Leaf';
 import { useFirstLogin } from '../hooks/useFirstLogin';
 import { Particles } from '../components/magicui/particles';
 import { BlurFade } from '../components/magicui/blur-fade';
+import { Book3D } from '../components/Book3D';
 
 type Tab = 'login' | 'register';
 type LocationState = { from?: { pathname: string } };
@@ -145,8 +146,8 @@ export default function Login() {
 
   return (
     <div className="flex h-screen overflow-hidden">
-      {/* Left branding panel — dark forest scene */}
-      <div className="hidden md:flex md:w-1/2 relative overflow-hidden items-center justify-center"
+      {/* Left branding panel — dark forest scene (desktop only) */}
+      <div className="hidden lg:flex lg:w-1/2 relative overflow-hidden items-center justify-center"
            style={{ background: 'linear-gradient(160deg, #0a1a0a 0%, #0f2a14 40%, #142010 100%)' }}>
         {/* Green particles */}
         <Particles className="absolute inset-0 z-0" quantity={40} ease={90} color="#2d6a2e" refresh={false} size={0.5} />
@@ -158,9 +159,11 @@ export default function Login() {
         {/* Warm spotlight */}
         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-96 h-96 rounded-full z-0 blur-3xl"
              style={{ background: 'radial-gradient(circle, rgba(201,168,76,0.25) 0%, transparent 70%)', opacity: 0.6 }} />
-        {/* Book container — replaced in LB-3 */}
-        <div className="relative z-10" id="book-container">
-          <p className="text-[#f5f0e8]/60 text-sm">Book loading...</p>
+        {/* 3D Book */}
+        <div className="relative z-10">
+          <Book3D onComplete={() => {
+            document.querySelector('#login-form')?.scrollIntoView({ behavior: 'smooth' });
+          }} />
         </div>
         {/* Bottom brand text */}
         <div className="absolute bottom-8 left-8 z-10">
@@ -178,12 +181,12 @@ export default function Login() {
       <div className="flex-1 flex items-center justify-center px-6 py-10 overflow-y-auto" style={{ backgroundColor: '#F5F0E8' }}>
         <div className="w-full max-w-[420px]">
 
-          <div className="flex items-center gap-2 mb-8 md:hidden">
+          <div className="flex items-center gap-2 mb-8 lg:hidden">
             <Leaf className="w-8 h-8" />
             <span className="font-serif text-lg font-bold text-forest-dark">Leaf<span className="text-gold-dark">Shelf</span></span>
           </div>
 
-          <div className="bg-white rounded-2xl border border-border shadow-[0_4px_24px_rgba(0,0,0,0.08)] max-w-[420px] p-8">
+          <div id="login-form" className="bg-white rounded-2xl border border-border shadow-[0_4px_24px_rgba(0,0,0,0.08)] max-w-[420px] p-8">
             {/* Tabs */}
             <div className="flex mb-7 border-b border-border">
               <button
