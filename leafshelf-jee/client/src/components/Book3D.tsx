@@ -16,12 +16,19 @@ export function Book3D({ onComplete }: Book3DProps) {
   ];
 
   function handleClick() {
-    if (isOpen) return;
-    setIsOpen(true);
-    pages.forEach((_, i) => {
-      setTimeout(() => setCurrentPage(i + 1), 800 + i * 1000);
-    });
-    setTimeout(() => onComplete?.(), 800 + pages.length * 1000 + 500);
+    if (isOpen) {
+      const pageCount = pages.length;
+      for (let i = pageCount - 1; i >= 0; i--) {
+        setTimeout(() => setCurrentPage(i), (pageCount - 1 - i) * 400);
+      }
+      setTimeout(() => setIsOpen(false), pageCount * 400 + 300);
+    } else {
+      setIsOpen(true);
+      pages.forEach((_, i) => {
+        setTimeout(() => setCurrentPage(i + 1), 800 + i * 1000);
+      });
+      setTimeout(() => onComplete?.(), 800 + pages.length * 1000 + 500);
+    }
   }
 
   return (
@@ -42,6 +49,20 @@ export function Book3D({ onComplete }: Book3DProps) {
             animation: isOpen ? 'none' : 'bookFloat 4s ease-in-out infinite',
           }}
         >
+          {/* Bookmark ribbon */}
+          <div
+            className="absolute pointer-events-none z-20"
+            style={{
+              top: '-12px',
+              right: '24px',
+              width: '14px',
+              height: '60px',
+              background: 'linear-gradient(to bottom, #8b1a1a, #c0312f, #8b1a1a)',
+              boxShadow: '0 2px 6px rgba(0,0,0,0.4), inset -1px 0 2px rgba(0,0,0,0.3)',
+              clipPath: 'polygon(0% 0%, 100% 0%, 100% 85%, 50% 100%, 0% 85%)',
+            }}
+          />
+
           {/* Front Cover */}
           <motion.div
             animate={{ rotateY: isOpen ? -160 : 0 }}
@@ -55,26 +76,65 @@ export function Book3D({ onComplete }: Book3DProps) {
             }}
           >
             {/* Cover front face */}
-            <div className="absolute inset-0 rounded-r-lg rounded-l-sm
-                            bg-gradient-to-br from-[#1a3a1a] via-[#2d5016] to-[#1a3a1a]
-                            border border-[#3d6a2e]/50 flex flex-col items-center justify-center
-                            p-6 gap-3">
-              <span className="text-4xl">🍃</span>
-              <h3 className="text-[#f5f0e8] text-xl font-bold tracking-wide"
-                  style={{ fontFamily: "'Playfair Display', serif" }}>
+            <div
+              className="absolute inset-0 rounded-r-lg rounded-l-sm flex flex-col items-center justify-center p-6 gap-3"
+              style={{
+                background: `
+                  linear-gradient(135deg, #1a3a10 0%, #2d5016 30%, #1f3812 50%, #2d5016 70%, #1a3a10 100%),
+                  radial-gradient(ellipse at 30% 30%, rgba(255, 220, 130, 0.15) 0%, transparent 50%)
+                `,
+                backgroundBlendMode: 'overlay',
+                border: '2px solid rgba(201, 168, 76, 0.4)',
+                boxShadow: 'inset 0 2px 8px rgba(255, 230, 150, 0.15), inset 0 -2px 8px rgba(0,0,0,0.4)',
+              }}
+            >
+              {/* Inner gold border frame */}
+              <div className="absolute inset-3 rounded border border-[#c9a84c]/30 pointer-events-none" />
+              {/* Decorative corner flourishes */}
+              <div className="absolute top-2 left-2 text-[#c9a84c]/50 text-xs">❦</div>
+              <div className="absolute top-2 right-2 text-[#c9a84c]/50 text-xs">❦</div>
+              <div className="absolute bottom-2 left-2 text-[#c9a84c]/50 text-xs">❦</div>
+              <div className="absolute bottom-2 right-2 text-[#c9a84c]/50 text-xs">❦</div>
+              {/* Leaf icon with gold halo */}
+              <div className="relative">
+                <div className="absolute inset-0 rounded-full bg-[#c9a84c]/20 blur-md scale-150" />
+                <span className="relative text-4xl">🍃</span>
+              </div>
+              {/* Title with embossed gold effect */}
+              <h3
+                className="text-xl font-bold tracking-wide mt-1"
+                style={{
+                  fontFamily: "'Playfair Display', serif",
+                  color: '#f5e9c0',
+                  textShadow: '0 1px 2px rgba(0,0,0,0.6), 0 0 12px rgba(201, 168, 76, 0.4)',
+                }}
+              >
                 LeafShelf
               </h3>
-              <p className="text-[#f5f0e8]/50 text-xs tracking-widest uppercase">
+              {/* Subtitle */}
+              <p
+                className="text-[10px] tracking-[0.4em] uppercase"
+                style={{ color: 'rgba(201, 168, 76, 0.7)' }}
+              >
                 Online Library
               </p>
-              <div className="w-16 h-px bg-[#c9a84c]/40 mt-2" />
-              <p className="text-[#c9a84c]/60 text-[10px] tracking-wider mt-1">
-                TAP TO OPEN
+              {/* Ornamental divider */}
+              <div className="w-12 h-px mt-2"
+                   style={{ background: 'linear-gradient(to right, transparent, #c9a84c, transparent)' }} />
+              {/* Call to action */}
+              <p
+                className="text-[9px] tracking-wider mt-1 italic"
+                style={{ color: 'rgba(201, 168, 76, 0.6)' }}
+              >
+                {isOpen ? '✦ tap to close ✦' : '✦ tap to open ✦'}
               </p>
             </div>
-            {/* Cover spine edge */}
-            <div className="absolute left-0 top-0 bottom-0 w-3
-                            bg-gradient-to-r from-[#1a2e1a] to-[#2d5016] rounded-l-sm" />
+            {/* Spine — thicker, more detailed */}
+            <div className="absolute left-0 top-0 bottom-0 w-4 rounded-l-sm"
+                 style={{
+                   background: 'linear-gradient(to right, #0a1a0a, #1a3a10 40%, #2d5016)',
+                   boxShadow: 'inset -1px 0 2px rgba(0,0,0,0.5)',
+                 }} />
           </motion.div>
 
           {/* Pages */}
