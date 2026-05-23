@@ -146,11 +146,12 @@ export default function Login() {
 
   return (
     <div className="relative min-h-screen overflow-hidden">
-      {/* Layer 1: Full-page nature background image */}
+      {/* Layer 1: Full-page nature background image with Ken Burns zoom */}
       <div
         className="absolute inset-0 bg-cover bg-center bg-no-repeat"
         style={{
           backgroundImage: `url('https://images.unsplash.com/photo-1448375240586-882707db888b?w=1920&q=80')`,
+          animation: 'kenBurns 40s ease-in-out infinite',
         }}
       />
       {/* Layer 2: Dark green overlay for readability */}
@@ -323,19 +324,45 @@ export default function Login() {
         </div>
       </div>
 
-      {/* Layer 6: Falling leaf shapes */}
-      {[...Array(6)].map((_, i) => (
+      {/* Layer 6: Swirling falling leaves */}
+      {[...Array(10)].map((_, i) => {
+        const leafEmojis = ['🍃', '🍂', '🍃', '🍂', '🍃'];
+        return (
+          <div
+            key={`leaf-${i}`}
+            className="absolute pointer-events-none z-10 select-none"
+            style={{
+              left: `${5 + (i * 9) % 90}%`,
+              top: '-40px',
+              fontSize: `${14 + (i % 4) * 5}px`,
+              color: `rgba(${i % 2 ? '180, 200, 130' : '201, 168, 76'}, 0.5)`,
+              animation: `leafFallSwirl ${10 + (i % 5) * 2}s linear ${i * 1.2}s infinite, windGust ${8 + (i % 3)}s ease-in-out ${i * 0.5}s infinite`,
+            }}
+          >
+            {leafEmojis[i % leafEmojis.length]}
+          </div>
+        );
+      })}
+
+      {/* Layer 7: Swaying corner leaf clusters */}
+      {[
+        { top: '5%', left: '2%', size: 36 },
+        { top: '15%', right: '3%', size: 28 },
+        { bottom: '8%', left: '4%', size: 32 },
+        { bottom: '12%', right: '8%', size: 24 },
+      ].map((pos, i) => (
         <div
-          key={i}
-          className="absolute text-green-300/10 pointer-events-none z-10"
+          key={`sway-${i}`}
+          className="absolute pointer-events-none z-10 select-none"
           style={{
-            left: `${10 + i * 15}%`,
-            top: '-30px',
-            fontSize: `${16 + i * 3}px`,
-            animation: `leafFall ${9 + i * 3}s linear ${i * 1.8}s infinite`,
+            ...pos,
+            fontSize: `${pos.size}px`,
+            color: 'rgba(150, 180, 110, 0.35)',
+            transformOrigin: 'top center',
+            animation: `leafSway ${5 + i}s ease-in-out ${i * 0.7}s infinite`,
           }}
         >
-          🍂
+          🍃
         </div>
       ))}
     </div>
