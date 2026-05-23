@@ -47,20 +47,21 @@ function InputField({ id, type, value, onChange, placeholder, autoComplete, requ
   const isPassword = type === 'password';
   return (
     <div>
-      <label htmlFor={id} className="block text-sm font-medium text-ink mb-1.5">{label}</label>
+      <label htmlFor={id} className="block text-sm font-medium text-[#2d5016] mb-1.5">{label}</label>
       <div className="relative">
-        <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none">{icon}</span>
+        <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-[#8a9a7a] pointer-events-none">{icon}</span>
         <input
           id={id} type={isPassword && show ? 'text' : type}
           value={value} onChange={onChange}
           required={required} autoComplete={autoComplete} placeholder={placeholder}
-          className="w-full pl-10 pr-10 py-2.5 rounded-lg border border-border bg-white text-sm text-ink
-            focus:outline-none focus:ring-2 focus:ring-forest-dark/20 focus:border-forest-dark
-            transition-[color,border-color,opacity] placeholder:text-gray-400"
+          className="w-full pl-10 pr-10 py-3 rounded-xl border border-[#d4c9a8]
+            bg-white/60 text-[#1a2e1a] text-sm placeholder:text-[#8a9a7a]
+            focus:ring-2 focus:ring-[#2d6a2e] focus:border-[#2d6a2e]
+            outline-none transition-all"
         />
         {isPassword && (
           <button type="button" onClick={() => setShow(s => !s)}
-            className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600">
+            className="absolute right-3 top-1/2 -translate-y-1/2 text-[#8a9a7a] hover:text-[#2d5016]">
             {show
               ? <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M3.98 8.223A10.477 10.477 0 001.934 12C3.226 16.338 7.244 19.5 12 19.5c.993 0 1.953-.138 2.863-.395M6.228 6.228A10.45 10.45 0 0112 4.5c4.756 0 8.773 3.162 10.065 7.498a10.523 10.523 0 01-4.293 5.774M6.228 6.228L3 3m3.228 3.228l3.65 3.65m7.894 7.894L21 21m-3.228-3.228l-3.65-3.65m0 0a3 3 0 10-4.243-4.243m4.242 4.242L9.88 9.88" /></svg>
               : <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178z" /><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /></svg>
@@ -184,19 +185,24 @@ export default function Login() {
 
         {/* RIGHT: Glassmorphism form card */}
         <div className="w-full max-w-md lg:max-w-lg flex-shrink-0">
-          <div id="login-form" className="backdrop-blur-xl bg-white/85 rounded-3xl shadow-2xl border border-white/30 p-8 lg:p-10">
+          <div id="login-form" className="backdrop-blur-xl bg-[#f5f0e8]/88 rounded-3xl shadow-2xl border border-[#d4c9a8]/30 p-8 lg:p-10">
             {/* Mobile logo */}
-            <div className="flex items-center gap-2 mb-6 lg:hidden">
+            <div className="flex items-center gap-2 mb-4 lg:hidden">
               <Leaf className="w-8 h-8" />
               <span className="font-serif text-lg font-bold text-forest-dark">Leaf<span className="text-gold-dark">Shelf</span></span>
             </div>
 
+            {/* Mobile leaf decoration — visible only when book is hidden */}
+            <div className="flex justify-center mb-4 lg:hidden">
+              <span className="text-3xl">🍃</span>
+            </div>
+
             {/* Tabs */}
-            <div className="flex mb-7 border-b border-border">
+            <div className="flex mb-7 border-b border-[#d4c9a8]">
               <button
                 onClick={() => switchTab('login')}
                 className={`pb-3 px-1 mr-6 text-sm font-semibold border-b-2 -mb-px whitespace-nowrap transition-colors ${
-                  tab === 'login' ? 'text-forest-dark border-forest-dark' : 'text-muted border-transparent hover:text-ink'
+                  tab === 'login' ? 'text-[#2d5016] border-[#2d5016]' : 'text-[#8a9a7a] border-transparent hover:text-[#2d5016]'
                 }`}
               >
                 Log In
@@ -204,7 +210,7 @@ export default function Login() {
               <button
                 onClick={() => switchTab('register')}
                 className={`pb-3 px-1 text-sm font-semibold border-b-2 -mb-px whitespace-nowrap transition-colors ${
-                  tab === 'register' ? 'text-forest-dark border-forest-dark' : 'text-muted border-transparent hover:text-ink'
+                  tab === 'register' ? 'text-[#2d5016] border-[#2d5016]' : 'text-[#8a9a7a] border-transparent hover:text-[#2d5016]'
                 }`}
               >
                 Create Account
@@ -213,8 +219,11 @@ export default function Login() {
 
             {tab === 'login' ? (
               <>
-                <h2 className="text-xl font-semibold text-ink mb-1">Sign in to your account</h2>
-                <p className="text-sm text-muted mb-6">Enter your credentials to access your library</p>
+                <h2 className="text-xl font-bold text-[#2d5016] mb-1"
+                    style={{ fontFamily: "'Playfair Display', serif" }}>
+                  Sign in to your account
+                </h2>
+                <p className="text-sm text-[#5a7a4a] mt-1 mb-6">Enter your credentials to access your library</p>
 
                 {error && <div className="bg-red-50 text-red-600 border border-red-200 rounded-lg px-4 py-3 mb-5 text-sm">{error}</div>}
 
@@ -225,32 +234,32 @@ export default function Login() {
                     placeholder="••••••••" autoComplete="current-password" required label="Password" icon={lockIcon} />
 
                   <div className="flex items-center justify-between pt-0.5">
-                    <label className="flex items-center gap-2 text-sm text-muted cursor-pointer select-none">
+                    <label className="flex items-center gap-2 text-sm text-[#5a7a4a] cursor-pointer select-none">
                       <input type="checkbox" checked={rememberMe} onChange={e => setRememberMe(e.target.checked)}
-                        className="w-4 h-4 rounded border-border text-forest-dark accent-forest-dark" />
+                        className="w-4 h-4 rounded border-[#d4c9a8] accent-[#2d5016]" />
                       Remember me
                     </label>
-                    <button type="button" className="text-sm text-forest-dark hover:text-forest font-medium transition-colors">
+                    <button type="button" className="text-sm text-[#2d6a2e] font-medium hover:underline transition-colors">
                       Forgot password?
                     </button>
                   </div>
 
                   <button type="submit" disabled={loading}
-                    className="w-full h-12 rounded-lg bg-forest-dark text-white text-sm font-semibold hover:bg-forest transition-colors disabled:opacity-60 shadow-soft mt-1 flex items-center justify-center gap-2">
+                    className="w-full py-3 rounded-xl bg-[#2d5016] text-white text-sm font-medium hover:bg-[#1a3a10] transition-colors disabled:opacity-60 shadow-md mt-1 flex items-center justify-center gap-2">
                     {loading ? 'Signing in…' : <><span>Log In</span><span>📖</span></>}
                   </button>
                 </form>
 
                 <div className="flex items-center gap-3 my-5">
-                  <div className="flex-1 h-px bg-border" />
-                  <span className="text-xs text-muted">or continue with</span>
-                  <div className="flex-1 h-px bg-border" />
+                  <div className="flex-1 h-px bg-[#d4c9a8]" />
+                  <span className="text-xs text-[#8a9a7a]">or continue with</span>
+                  <div className="flex-1 h-px bg-[#d4c9a8]" />
                 </div>
 
                 <div className="flex flex-col">
                   {socialButtons.map(({ icon, label }) => (
                     <button key={label} type="button"
-                      className="w-full flex items-center justify-center gap-2 h-11 border border-[#E5E7EB] rounded-lg text-sm font-medium text-[#374151] hover:bg-gray-50 mb-2">
+                      className="w-full py-3 rounded-xl border border-[#d4c9a8] bg-white/50 text-[#2d5016] text-sm font-medium hover:bg-white/80 transition-colors flex items-center justify-center gap-2 mb-2">
                       {icon} {label}
                     </button>
                   ))}
@@ -258,8 +267,11 @@ export default function Login() {
               </>
             ) : (
               <>
-                <h2 className="text-xl font-semibold text-ink mb-1">Create your account</h2>
-                <p className="text-sm text-muted mb-6">Join thousands of readers on LeafShelf</p>
+                <h2 className="text-xl font-bold text-[#2d5016] mb-1"
+                    style={{ fontFamily: "'Playfair Display', serif" }}>
+                  Create your account
+                </h2>
+                <p className="text-sm text-[#5a7a4a] mt-1 mb-6">Join thousands of readers on LeafShelf</p>
 
                 {error && <div className="bg-red-50 text-red-600 border border-red-200 rounded-lg px-4 py-3 mb-5 text-sm">{error}</div>}
 
@@ -274,20 +286,20 @@ export default function Login() {
                     placeholder="••••••••" autoComplete="new-password" required label="Confirm Password" icon={lockIcon} />
 
                   <button type="submit" disabled={loading}
-                    className="w-full h-12 rounded-lg bg-forest-dark text-white text-sm font-semibold hover:bg-forest transition-colors disabled:opacity-60 shadow-soft mt-1 flex items-center justify-center">
+                    className="w-full py-3 rounded-xl bg-[#2d5016] text-white text-sm font-medium hover:bg-[#1a3a10] transition-colors disabled:opacity-60 shadow-md mt-1 flex items-center justify-center">
                     {loading ? 'Creating account…' : 'Create Account'}
                   </button>
                 </form>
 
                 <div className="flex items-center gap-3 my-5">
-                  <div className="flex-1 h-px bg-border" />
-                  <span className="text-xs text-muted">or continue with</span>
-                  <div className="flex-1 h-px bg-border" />
+                  <div className="flex-1 h-px bg-[#d4c9a8]" />
+                  <span className="text-xs text-[#8a9a7a]">or continue with</span>
+                  <div className="flex-1 h-px bg-[#d4c9a8]" />
                 </div>
                 <div className="flex flex-col">
                   {socialButtons.map(({ icon, label }) => (
                     <button key={label} type="button"
-                      className="w-full flex items-center justify-center gap-2 h-11 border border-[#E5E7EB] rounded-lg text-sm font-medium text-[#374151] hover:bg-gray-50 mb-2">
+                      className="w-full py-3 rounded-xl border border-[#d4c9a8] bg-white/50 text-[#2d5016] text-sm font-medium hover:bg-white/80 transition-colors flex items-center justify-center gap-2 mb-2">
                       {icon} {label}
                     </button>
                   ))}
@@ -295,17 +307,17 @@ export default function Login() {
               </>
             )}
 
-            <p className="mt-5 text-center text-xs text-muted">
+            <p className="mt-5 text-center text-xs text-[#5a7a4a]">
               {tab === 'login' ? (
-                <>Don't have an account?{' '}<button onClick={() => switchTab('register')} className="text-forest-dark font-semibold hover:text-forest transition-colors">Create Account</button></>
+                <>Don't have an account?{' '}<button onClick={() => switchTab('register')} className="text-[#2d6a2e] font-medium hover:underline">Create Account</button></>
               ) : (
-                <>Already have an account?{' '}<button onClick={() => switchTab('login')} className="text-forest-dark font-semibold hover:text-forest transition-colors">Log In</button></>
+                <>Already have an account?{' '}<button onClick={() => switchTab('login')} className="text-[#2d6a2e] font-medium hover:underline">Log In</button></>
               )}
             </p>
-            <p className="mt-3 text-center text-xs text-muted/60">
+            <p className="mt-3 text-center text-xs text-[#8a9a7a]">
               By continuing, you agree to our{' '}
-              <span className="underline cursor-pointer hover:text-muted transition-colors">Terms</span>{' '}and{' '}
-              <span className="underline cursor-pointer hover:text-muted transition-colors">Privacy Policy</span>
+              <span className="underline cursor-pointer hover:text-[#5a7a4a] transition-colors">Terms</span>{' '}and{' '}
+              <span className="underline cursor-pointer hover:text-[#5a7a4a] transition-colors">Privacy Policy</span>
             </p>
           </div>
         </div>
