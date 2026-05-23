@@ -8,6 +8,7 @@ import { useFirstLogin } from '../hooks/useFirstLogin';
 import { Particles } from '../components/magicui/particles';
 import { BorderBeam } from '../components/magicui/border-beam';
 import { Aurora } from '../components/magicui/aurora';
+import { FallingBook } from '../components/FallingBook';
 
 const VIDEO_SRC = 'https://videos.pexels.com/video-files/4763824/4763824-uhd_2560_1440_24fps.mp4';
 const VIDEO_POSTER = 'https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?w=1920&q=80';
@@ -175,6 +176,21 @@ export default function Login() {
 
   const switchTab = (t: Tab) => { setTab(t); setError(null); };
 
+  const fallingBooks = [
+    { startX: 8,  size: 70,  delay: 0,    duration: 9,  rotationSpeed: 45, color: 'forest'   as const },
+    { startX: 18, size: 90,  delay: 2.5,  duration: 11, rotationSpeed: 30, color: 'burgundy' as const },
+    { startX: 28, size: 60,  delay: 5,    duration: 8,  rotationSpeed: 60, color: 'amber'    as const },
+    { startX: 35, size: 100, delay: 7.5,  duration: 12, rotationSpeed: 25, color: 'navy'     as const },
+    { startX: 48, size: 75,  delay: 1,    duration: 10, rotationSpeed: 40, color: 'cream'    as const },
+    { startX: 12, size: 85,  delay: 4,    duration: 11, rotationSpeed: 35, color: 'forest'   as const },
+    { startX: 22, size: 65,  delay: 6.5,  duration: 9,  rotationSpeed: 50, color: 'amber'    as const },
+    { startX: 40, size: 95,  delay: 8,    duration: 12, rotationSpeed: 28, color: 'burgundy' as const },
+    { startX: 5,  size: 70,  delay: 3,    duration: 10, rotationSpeed: 42, color: 'navy'     as const },
+    { startX: 30, size: 80,  delay: 9,    duration: 11, rotationSpeed: 33, color: 'cream'    as const },
+    { startX: 45, size: 65,  delay: 5.5,  duration: 9,  rotationSpeed: 48, color: 'forest'   as const },
+    { startX: 15, size: 100, delay: 10,   duration: 13, rotationSpeed: 22, color: 'amber'    as const },
+  ];
+
   const envelopeIcon = (
     <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M21.75 6.75v10.5a2.25 2.25 0 01-2.25 2.25h-15a2.25 2.25 0 01-2.25-2.25V6.75m19.5 0A2.25 2.25 0 0019.5 4.5h-15a2.25 2.25 0 00-2.25 2.25m19.5 0v.243a2.25 2.25 0 01-1.07 1.916l-7.5 4.615a2.25 2.25 0 01-2.36 0L3.32 8.91a2.25 2.25 0 01-1.07-1.916V6.75" />
@@ -212,6 +228,14 @@ export default function Login() {
       >
         <source src={VIDEO_SRC} type="video/mp4" />
       </video>
+      {/* Falling books — left 60% only, books fall behind form */}
+      <div className="absolute inset-0 z-[5] pointer-events-none overflow-hidden"
+           style={{ width: '60%' }}>
+        {fallingBooks.map((book, i) => (
+          <FallingBook key={`book-${i}`} {...book} />
+        ))}
+      </div>
+
       {/* Layer 2: Warm meadow overlay */}
       <div
         className="absolute inset-0 z-[1]"
@@ -342,7 +366,7 @@ export default function Login() {
         </div>
 
         {/* RIGHT: Form card */}
-        <div className="w-full max-w-md lg:max-w-lg flex-shrink-0">
+        <div className="w-full max-w-md lg:max-w-md flex-shrink-0 lg:ml-auto lg:mr-12">
           <div
             id="login-form"
             className="relative rounded-3xl p-8 lg:p-10"
@@ -569,6 +593,36 @@ export default function Login() {
 
       {/* Layer 6: Falling leaves — disabled for meadow scene (RABEN-1) */}
       {/* Layer 7: Corner sway leaves — disabled for meadow scene (RABEN-1) */}
+
+      {/* Landed books — resting on the grass */}
+      <div className="absolute bottom-8 left-12 z-[6] pointer-events-none flex gap-3">
+        <div style={{
+          width: '50px', height: '70px',
+          background: 'linear-gradient(135deg, #1a3a10, #2d5016)',
+          borderRadius: '2px 4px 4px 2px',
+          border: '1.5px solid rgba(201, 168, 76, 0.4)',
+          boxShadow: '0 4px 12px rgba(0,0,0,0.4)',
+          transform: 'rotate(-12deg)',
+        }} />
+        <div style={{
+          width: '60px', height: '85px',
+          background: 'linear-gradient(135deg, #5a1a1a, #8b2a2a)',
+          borderRadius: '2px 4px 4px 2px',
+          border: '1.5px solid rgba(212, 175, 55, 0.4)',
+          boxShadow: '0 4px 12px rgba(0,0,0,0.4)',
+          transform: 'rotate(4deg)',
+          marginLeft: '-15px',
+        }} />
+        <div style={{
+          width: '45px', height: '65px',
+          background: 'linear-gradient(135deg, #6a4a1a, #8b6a2a)',
+          borderRadius: '2px 4px 4px 2px',
+          border: '1.5px solid rgba(245, 215, 110, 0.4)',
+          boxShadow: '0 4px 12px rgba(0,0,0,0.4)',
+          transform: 'rotate(-6deg)',
+          marginLeft: '-10px',
+        }} />
+      </div>
     </div>
   );
 }
