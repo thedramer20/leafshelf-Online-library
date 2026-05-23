@@ -26,8 +26,12 @@ export function Book3D({ onComplete }: Book3DProps) {
 
   return (
     <div className="flex flex-col items-center gap-4">
-      {/* 3D book */}
-      <div style={{ perspective: '1200px' }}>
+      {/* 3D book with warm glow */}
+      <div className="relative" style={{ perspective: '1200px' }}>
+        {/* Warm glow behind book */}
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2
+                        w-64 h-80 rounded-full opacity-30 blur-3xl pointer-events-none
+                        bg-gradient-to-b from-[#c9a84c]/30 to-[#2d6a2e]/20" />
         <div
           onClick={handleClick}
           className="relative cursor-pointer"
@@ -35,7 +39,7 @@ export function Book3D({ onComplete }: Book3DProps) {
             width: '220px',
             height: '300px',
             transformStyle: 'preserve-3d',
-            animation: isOpen ? 'none' : 'bookFloat 3s ease-in-out infinite',
+            animation: isOpen ? 'none' : 'bookFloat 4s ease-in-out infinite',
           }}
         >
           {/* Front Cover */}
@@ -151,13 +155,12 @@ export function Book3D({ onComplete }: Book3DProps) {
         </div>
       </div>
 
-      {/* Hint label */}
+      {/* Hint label — pulsing */}
       {!isOpen && (
         <motion.p
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 1 }}
-          className="text-[#f5f0e8]/40 text-xs tracking-wider animate-pulse"
+          animate={{ opacity: [0.3, 0.7, 0.3] }}
+          transition={{ duration: 2, repeat: Infinity }}
+          className="text-[#f5f0e8]/40 text-xs tracking-wider mt-4"
         >
           Click the book to begin
         </motion.p>

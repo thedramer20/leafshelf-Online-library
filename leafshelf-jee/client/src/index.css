@@ -115,7 +115,7 @@ input:-webkit-autofill:active {
 /* 3D book floating animation */
 @keyframes bookFloat {
   0%, 100% { transform: translateY(0px) rotateY(-8deg) rotateX(5deg); }
-  50%       { transform: translateY(-14px) rotateY(-8deg) rotateX(3deg); }
+  50%       { transform: translateY(-16px) rotateY(-5deg) rotateX(3deg); }
 }
 
 /* Subtle entrance for page content */
