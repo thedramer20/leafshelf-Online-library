@@ -10,7 +10,7 @@ import { BorderBeam } from '../components/magicui/border-beam';
 import { Aurora } from '../components/magicui/aurora';
 import { FallingBook } from '../components/FallingBook';
 
-const VIDEO_SRC = 'https://videos.pexels.com/video-files/4763824/4763824-uhd_2560_1440_24fps.mp4';
+const VIDEO_SRC = 'https://videos.pexels.com/video-files/4763824/4763824-hd_1920_1080_24fps.mp4';
 const VIDEO_POSTER = 'https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?w=1920&q=80';
 
 type Tab = 'login' | 'register';
@@ -215,18 +215,24 @@ export default function Login() {
 
   return (
     <div className="relative min-h-screen overflow-hidden">
-      {/* Layer 1: Cinematic video background with parallax */}
-      <video
-        autoPlay loop muted playsInline
-        className="absolute inset-0 w-full h-full object-cover"
-        poster={VIDEO_POSTER}
-        style={{
-          filter: 'brightness(0.85) saturate(1.1) contrast(1.05)',
-          animation: 'kenBurns 60s ease-in-out infinite',
-        }}
+      {/* Layer 1: Cinematic video background — wrapper animates, video just decodes */}
+      <div
+        className="absolute inset-0 overflow-hidden"
+        style={{ animation: 'kenBurns 60s ease-in-out infinite', willChange: 'transform' }}
       >
-        <source src={VIDEO_SRC} type="video/mp4" />
-      </video>
+        <video
+          autoPlay loop muted playsInline preload="auto"
+          className="absolute inset-0 w-full h-full object-cover"
+          poster={VIDEO_POSTER}
+          style={{
+            filter: 'brightness(0.85) saturate(1.1) contrast(1.05)',
+            transform: 'translateZ(0)',
+            willChange: 'transform',
+          }}
+        >
+          <source src={VIDEO_SRC} type="video/mp4" />
+        </video>
+      </div>
       {/* Falling books — left 60% only, hidden on mobile to avoid overflow */}
       <div className="hidden lg:block absolute inset-0 z-[5] pointer-events-none overflow-hidden"
            style={{ width: '60%' }}>
