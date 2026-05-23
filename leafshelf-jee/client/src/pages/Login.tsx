@@ -222,14 +222,13 @@ export default function Login() {
         poster={VIDEO_POSTER}
         style={{
           filter: 'brightness(0.85) saturate(1.1) contrast(1.05)',
-          transform: `translate(${mousePos.x * -10}px, ${mousePos.y * -10}px) scale(1.05)`,
-          transition: 'transform 0.5s ease-out',
+          animation: 'kenBurns 60s ease-in-out infinite',
         }}
       >
         <source src={VIDEO_SRC} type="video/mp4" />
       </video>
-      {/* Falling books — left 60% only, books fall behind form */}
-      <div className="absolute inset-0 z-[5] pointer-events-none overflow-hidden"
+      {/* Falling books — left 60% only, hidden on mobile to avoid overflow */}
+      <div className="hidden lg:block absolute inset-0 z-[5] pointer-events-none overflow-hidden"
            style={{ width: '60%' }}>
         {fallingBooks.map((book, i) => (
           <FallingBook key={`book-${i}`} {...book} />
@@ -243,6 +242,12 @@ export default function Login() {
           background: 'linear-gradient(135deg, rgba(50, 80, 30, 0.25) 0%, rgba(180, 200, 100, 0.1) 50%, rgba(50, 80, 30, 0.3) 100%)'
         }}
       />
+      {/* Bottom gradient — darkens grass under form for contrast */}
+      <div className="absolute bottom-0 left-0 right-0 h-2/3 z-[2] pointer-events-none"
+           style={{
+             background: 'linear-gradient(to top, rgba(20, 40, 15, 0.4), transparent)'
+           }} />
+
       {/* Layer 2a: Aurora color overlay */}
       <div
         className="absolute inset-0 z-[2] pointer-events-none opacity-30"
@@ -338,8 +343,12 @@ export default function Login() {
         {/* LEFT: Brand + quote — falling books visual feature replaces Book3D (RABEN-1) */}
         <div className="hidden lg:flex flex-col items-center gap-8 flex-1">
           <div className="text-center max-w-xs">
-            <h1 className="text-5xl font-bold text-[#f5f0e8] drop-shadow-lg"
-                style={{ fontFamily: "'Playfair Display', serif" }}>
+            <h1 className="text-5xl font-bold"
+                style={{
+                  color: '#f5f0e8',
+                  textShadow: '0 2px 8px rgba(0,0,0,0.6), 0 0 16px rgba(0,0,0,0.4)',
+                  fontFamily: "'Playfair Display', serif",
+                }}>
               {'LeafShelf'.split('').map((letter, i) => (
                 <span key={i} className="inline-block"
                   style={{ animation: `letterReveal 0.5s ease-out ${i * 0.08}s both` }}>
@@ -371,11 +380,11 @@ export default function Login() {
             id="login-form"
             className="relative rounded-3xl p-8 lg:p-10"
             style={{
-              backgroundColor: 'rgba(245, 240, 232, 0.98)',
-              backdropFilter: 'blur(24px)',
-              WebkitBackdropFilter: 'blur(24px)',
-              border: '1px solid rgba(212, 201, 168, 0.5)',
-              boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.5), 0 0 80px rgba(201, 168, 76, 0.1)',
+              backgroundColor: 'rgba(245, 240, 232, 0.99)',
+              backdropFilter: 'blur(28px)',
+              WebkitBackdropFilter: 'blur(28px)',
+              border: '1px solid rgba(212, 201, 168, 0.6)',
+              boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.4), 0 0 80px rgba(50, 80, 30, 0.15)',
               animation: 'formBreathe 5s ease-in-out infinite',
             }}
           >
@@ -594,8 +603,8 @@ export default function Login() {
       {/* Layer 6: Falling leaves — disabled for meadow scene (RABEN-1) */}
       {/* Layer 7: Corner sway leaves — disabled for meadow scene (RABEN-1) */}
 
-      {/* Landed books — resting on the grass */}
-      <div className="absolute bottom-8 left-12 z-[6] pointer-events-none flex gap-3">
+      {/* Landed books — resting on the grass (desktop only) */}
+      <div className="hidden lg:flex absolute bottom-8 left-12 z-[6] pointer-events-none gap-3">
         <div style={{
           width: '50px', height: '70px',
           background: 'linear-gradient(135deg, #1a3a10, #2d5016)',
