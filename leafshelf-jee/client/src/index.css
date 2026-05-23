@@ -1,0 +1,101 @@
+/* Inter (UI) + Playfair Display (headings) from Google Fonts */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Playfair+Display:ital,wght@0,600;0,700;1,600&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --color-bg: #FAFAF8;
+  --color-sidebar: #FFFFFF;
+  --color-primary: #1B4332;
+  --color-primary-hover: #14532D;
+  --color-gold: #D4A853;
+  --color-text: #1C1917;
+  --color-muted: #6B7280;
+  --color-border: #E5E7EB;
+  --color-card: #FFFFFF;
+  --radius-card: 12px;
+  --radius-btn: 8px;
+  --shadow-card: 0 1px 3px rgba(0,0,0,0.08);
+}
+
+@layer base {
+  html {
+    scroll-behavior: smooth;
+  }
+
+  body {
+    @apply bg-paper text-ink font-sans antialiased;
+    min-height: 100vh;
+  }
+
+  h1, h2, h3, h4 {
+    @apply font-serif text-forest-dark;
+  }
+
+  input[type='text'],
+  input[type='search'],
+  input[type='email'],
+  input[type='password'],
+  textarea {
+    @apply w-full px-4 py-3 rounded-lg bg-white border border-gray-200 text-ink;
+    @apply focus:outline-none focus:ring-2 focus:ring-forest-dark/20 focus:border-forest-dark;
+    @apply transition;
+  }
+
+  label {
+    @apply block text-sm text-muted mb-1.5 font-medium;
+  }
+
+  button {
+    @apply font-sans;
+  }
+}
+
+@layer components {
+  /* Buttons */
+  .btn {
+    @apply inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-btn;
+    @apply text-sm font-medium transition-colors active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed;
+  }
+  .btn-primary {
+    @apply btn bg-forest-dark text-white hover:bg-forest shadow-soft;
+  }
+  .btn-ghost {
+    @apply btn border border-border text-ink hover:bg-forest-dark hover:text-white hover:border-forest-dark;
+  }
+  .btn-gold {
+    @apply btn bg-gold text-forest-dark hover:bg-gold-dark shadow-soft;
+  }
+
+  /* Pills / chips */
+  .chip {
+    @apply inline-flex items-center px-3 py-1 rounded-pill text-xs font-medium uppercase tracking-widest;
+    @apply bg-forest-dark/5 text-forest-mid border border-forest-dark/10;
+  }
+  .chip-active {
+    @apply bg-forest-dark text-white border-forest-dark;
+  }
+  .chip-gold {
+    @apply bg-gold/15 text-gold-dark border border-gold/30;
+  }
+
+  /* Cards */
+  .card {
+    @apply bg-white border border-border rounded-card p-6 shadow-soft;
+  }
+
+  .tagline {
+    @apply text-[0.7rem] uppercase tracking-[0.22em] text-gold-dark font-medium;
+  }
+}
+
+/* Subtle entrance for page content */
+.fade-in {
+  animation: fadeIn 0.4s ease-out;
+}
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(5px); }
+  to   { opacity: 1; transform: translateY(0); }
+}

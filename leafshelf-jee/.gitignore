@@ -1,0 +1,29 @@
+# Maven
+target/
+*.class
+
+# Leafshelf local data (H2 file-based DB)
+leafshelf-data/
+
+# React / Node
+client/node_modules/
+client/dist/
+client/.tsbuildinfo
+client/tsconfig*.tsbuildinfo
+
+# IDE
+.idea/
+.vscode/
+*.iml
+.classpath
+.project
+.settings/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Secrets — never commit
+vault-keys.txt
+*.env
+.env.local
