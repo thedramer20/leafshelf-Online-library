@@ -206,7 +206,7 @@ export default function Login() {
         className="absolute inset-0 w-full h-full object-cover"
         poster={VIDEO_POSTER}
         style={{
-          filter: 'brightness(0.65) saturate(1.2) contrast(1.05)',
+          filter: 'brightness(0.7) saturate(1.3) contrast(1.1) hue-rotate(-5deg)',
           transform: `translate(${mousePos.x * -10}px, ${mousePos.y * -10}px) scale(1.05)`,
           transition: 'transform 0.5s ease-out',
         }}
@@ -215,6 +215,19 @@ export default function Login() {
       </video>
       {/* Layer 2: Dark overlay */}
       <div className="absolute inset-0 bg-gradient-to-br from-[#0a1a0a]/65 via-[#1a2e1a]/55 to-[#0f1a0f]/75 z-[1]" />
+      {/* Layer 2a: Aurora color overlay */}
+      <div
+        className="absolute inset-0 z-[2] pointer-events-none opacity-30"
+        style={{
+          background: `
+            radial-gradient(ellipse at 20% 30%, rgba(201, 168, 76, 0.25) 0%, transparent 50%),
+            radial-gradient(ellipse at 80% 70%, rgba(76, 175, 80, 0.15) 0%, transparent 50%),
+            radial-gradient(ellipse at 50% 50%, rgba(255, 167, 38, 0.08) 0%, transparent 70%)
+          `,
+          mixBlendMode: 'screen',
+          animation: 'auroraShift 20s ease-in-out infinite',
+        }}
+      />
       {/* Layer 2b: Aurora */}
       <Aurora
         className="z-[3]"
@@ -223,6 +236,24 @@ export default function Login() {
         blur="heavy"
         intensity={0.3}
       />
+      {/* Layer 2c: Fireflies */}
+      <div className="absolute inset-0 z-[3] pointer-events-none">
+        {[...Array(8)].map((_, i) => (
+          <div
+            key={`firefly-${i}`}
+            className="absolute rounded-full"
+            style={{
+              width: '4px',
+              height: '4px',
+              background: 'radial-gradient(circle, rgba(255, 220, 130, 0.9), rgba(255, 180, 100, 0.4) 50%, transparent 70%)',
+              boxShadow: '0 0 8px rgba(255, 220, 130, 0.8)',
+              left: `${10 + (i * 11) % 80}%`,
+              top: `${20 + (i * 13) % 60}%`,
+              animation: `fireflyFloat ${6 + (i % 4)}s ease-in-out ${i * 0.5}s infinite, fireflyBlink ${2 + (i % 3)}s ease-in-out ${i * 0.3}s infinite`,
+            }}
+          />
+        ))}
+      </div>
       {/* Layer 3: Particles */}
       <Particles className="absolute inset-0 z-10" quantity={40} ease={90} color="#2d6a2e" size={0.5} refresh={false} />
       <Particles className="absolute inset-0 z-10" quantity={10} ease={70} color="#c9a84c" size={0.8} refresh={false} />
