@@ -8,6 +8,10 @@ import { useFirstLogin } from '../hooks/useFirstLogin';
 import { Particles } from '../components/magicui/particles';
 import { Book3D } from '../components/Book3D';
 import { BorderBeam } from '../components/magicui/border-beam';
+import { Aurora } from '../components/magicui/aurora';
+
+// Replace with your Pexels forest video direct MP4 URL
+const FOREST_VIDEO_URL = '';
 
 type Tab = 'login' | 'register';
 type LocationState = { from?: { pathname: string } };
@@ -176,18 +180,38 @@ export default function Login() {
 
   return (
     <div className="relative min-h-screen overflow-hidden">
-      {/* Layer 1: Full-page nature background image with Ken Burns zoom */}
-      <div
-        className="absolute inset-0 bg-cover bg-center bg-no-repeat"
-        style={{
-          backgroundImage: `url('https://images.unsplash.com/photo-1448375240586-882707db888b?w=1920&q=80')`,
-          animation: 'kenBurns 40s ease-in-out infinite',
-          transform: `translate(${mousePos.x * -10}px, ${mousePos.y * -10}px) scale(1.05)`,
-          transition: 'transform 0.5s ease-out',
-        }}
-      />
+      {/* Layer 1: Full-page nature background — video if URL set, else Ken Burns image */}
+      {FOREST_VIDEO_URL ? (
+        <video
+          className="absolute inset-0 w-full h-full object-cover"
+          src={FOREST_VIDEO_URL}
+          autoPlay muted loop playsInline
+          style={{
+            transform: `translate(${mousePos.x * -10}px, ${mousePos.y * -10}px) scale(1.05)`,
+            transition: 'transform 0.5s ease-out',
+          }}
+        />
+      ) : (
+        <div
+          className="absolute inset-0 bg-cover bg-center bg-no-repeat"
+          style={{
+            backgroundImage: `url('https://images.unsplash.com/photo-1448375240586-882707db888b?w=1920&q=80')`,
+            animation: 'kenBurns 40s ease-in-out infinite',
+            transform: `translate(${mousePos.x * -10}px, ${mousePos.y * -10}px) scale(1.05)`,
+            transition: 'transform 0.5s ease-out',
+          }}
+        />
+      )}
       {/* Layer 2: Dark green overlay for readability */}
       <div className="absolute inset-0 bg-gradient-to-br from-[#0a1a0a]/70 via-[#1a2e1a]/60 to-[#0f1a0f]/80" />
+      {/* Layer 2b: Aurora color overlay */}
+      <Aurora
+        className="z-[3]"
+        colors={['#2d6a2e', '#c9a84c', '#1a5c1a', '#8b6914', '#3d8a3e', '#a07820']}
+        speed="slow"
+        blur="heavy"
+        intensity={0.3}
+      />
       {/* Layer 3: Particles */}
       <Particles className="absolute inset-0 z-10" quantity={40} ease={90} color="#2d6a2e" size={0.5} refresh={false} />
       <Particles className="absolute inset-0 z-10" quantity={10} ease={70} color="#c9a84c" size={0.8} refresh={false} />
