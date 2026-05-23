@@ -4,6 +4,8 @@ import { apiErrorMessage } from '../lib/api';
 import { useAuth } from '../lib/auth';
 import Leaf from '../components/Leaf';
 import { useFirstLogin } from '../hooks/useFirstLogin';
+import { Particles } from '../components/magicui/particles';
+import { BlurFade } from '../components/magicui/blur-fade';
 
 type Tab = 'login' | 'register';
 type LocationState = { from?: { pathname: string } };
@@ -54,7 +56,7 @@ function InputField({ id, type, value, onChange, placeholder, autoComplete, requ
           required={required} autoComplete={autoComplete} placeholder={placeholder}
           className="w-full pl-10 pr-10 py-2.5 rounded-lg border border-border bg-white text-sm text-ink
             focus:outline-none focus:ring-2 focus:ring-forest-dark/20 focus:border-forest-dark
-            transition-all placeholder:text-gray-400"
+            transition-[color,border-color,opacity] placeholder:text-gray-400"
         />
         {isPassword && (
           <button type="button" onClick={() => setShow(s => !s)}
@@ -70,18 +72,6 @@ function InputField({ id, type, value, onChange, placeholder, autoComplete, requ
   );
 }
 
-function BookStack() {
-  return (
-    <div className="flex justify-center mt-auto pt-8">
-      <div className="relative w-52 h-40">
-        <div className="absolute bottom-0 left-8 w-32 h-9 bg-forest-dark/20 rounded border border-forest-dark/10 rotate-[-6deg]" />
-        <div className="absolute bottom-5 left-4 w-36 h-10 bg-gold/30 rounded border border-gold/20 rotate-[-2deg]" />
-        <div className="absolute bottom-11 left-2 w-40 h-11 bg-forest-dark/30 rounded border border-forest-dark/15 rotate-[1deg]" />
-        <div className="absolute bottom-[72px] left-6 w-32 h-9 bg-gold/20 rounded border border-gold/15 rotate-[4deg]" />
-      </div>
-    </div>
-  );
-}
 
 export default function Login() {
   const { signIn, signUp } = useAuth();
@@ -155,56 +145,33 @@ export default function Login() {
 
   return (
     <div className="flex h-screen overflow-hidden">
-      {/* Left branding panel */}
-      <div className="hidden md:flex md:w-1/2 flex-col p-12 relative overflow-hidden" style={{ backgroundColor: '#F5F0E8' }}>
-        <div className="absolute top-0 right-0 w-72 h-72 rounded-full opacity-[0.07] bg-forest-dark -translate-y-1/4 translate-x-1/4" />
-        <div className="absolute bottom-0 left-0 w-80 h-80 rounded-full opacity-[0.05] bg-forest-dark translate-y-1/4 -translate-x-1/4" />
-
-        <div className="flex items-center gap-3 relative z-10">
-          <Leaf className="w-9 h-9" />
-          <div>
-            <div className="font-serif text-lg font-bold text-forest-dark leading-tight">Leaf<span className="text-gold-dark">Shelf</span></div>
-            <div className="text-[11px] text-gray-500 leading-tight">Online Library</div>
-          </div>
+      {/* Left branding panel — dark forest scene */}
+      <div className="hidden md:flex md:w-1/2 relative overflow-hidden items-center justify-center"
+           style={{ background: 'linear-gradient(160deg, #0a1a0a 0%, #0f2a14 40%, #142010 100%)' }}>
+        {/* Green particles */}
+        <Particles className="absolute inset-0 z-0" quantity={40} ease={90} color="#2d6a2e" refresh={false} size={0.5} />
+        {/* Gold accent particles */}
+        <Particles className="absolute inset-0 z-0" quantity={12} ease={70} color="#c9a84c" refresh={false} size={0.7} />
+        {/* Dot pattern overlay */}
+        <div className="absolute inset-0 opacity-[0.03] z-0"
+             style={{ backgroundImage: 'radial-gradient(circle, #2d6a2e 1px, transparent 1px)', backgroundSize: '30px 30px' }} />
+        {/* Warm spotlight */}
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-96 h-96 rounded-full z-0 blur-3xl"
+             style={{ background: 'radial-gradient(circle, rgba(201,168,76,0.25) 0%, transparent 70%)', opacity: 0.6 }} />
+        {/* Book container — replaced in LB-3 */}
+        <div className="relative z-10" id="book-container">
+          <p className="text-[#f5f0e8]/60 text-sm">Book loading...</p>
         </div>
-
-        <div className="relative z-10 mt-16">
-          <h1 className="font-serif text-[48px] font-bold text-forest-dark leading-snug mb-3">
-            {tab === 'login' ? 'Welcome back' : 'Join LeafShelf'}
-          </h1>
-          <p className="text-gray-500 text-sm leading-relaxed max-w-xs mb-10">
-            {tab === 'login'
-              ? 'Your next great read is waiting. Sign in or create an account to continue.'
-              : 'Create your account and start exploring thousands of books today.'}
-          </p>
-
-          <ul className="space-y-5">
-            {[
-              { emoji: '📖', title: 'Endless stories', desc: 'Explore thousands of books across genres' },
-              { emoji: '🔖', title: 'Your library, your way', desc: 'Save favorites, track progress, keep in sync' },
-              { emoji: '🎧', title: 'Read or listen', desc: 'Enjoy books with eBooks and audiobooks' },
-            ].map(({ emoji, title, desc }) => (
-              <li key={title} className="flex items-center gap-3 text-sm text-gray-600">
-                <span className="w-12 h-12 rounded-xl bg-white shadow-sm flex items-center justify-center text-2xl flex-shrink-0">{emoji}</span>
-                <div>
-                  <div className="font-semibold text-forest-dark text-xs">{title}</div>
-                  <div className="text-gray-500 text-xs">{desc}</div>
-                </div>
-              </li>
-            ))}
-          </ul>
+        {/* Bottom brand text */}
+        <div className="absolute bottom-8 left-8 z-10">
+          <BlurFade delay={0.3} inView>
+            <h2 className="text-2xl font-bold text-[#f5f0e8]/90"
+                style={{ fontFamily: "'Playfair Display', serif" }}>
+              LeafShelf
+            </h2>
+            <p className="text-sm text-[#f5f0e8]/40 mt-1">Online Library</p>
+          </BlurFade>
         </div>
-
-        <BookStack />
-
-        <p className="text-xs text-[#9CA3AF] mt-auto pt-8">
-          © 2024 LeafShelf Online Library. All rights reserved.{' '}
-          <span className="underline cursor-pointer hover:text-gray-600 transition-colors">Terms of Service</span>
-          {' · '}
-          <span className="underline cursor-pointer hover:text-gray-600 transition-colors">Privacy Policy</span>
-          {' · '}
-          <span className="underline cursor-pointer hover:text-gray-600 transition-colors">Help Center</span>
-        </p>
       </div>
 
       {/* Right form panel */}
