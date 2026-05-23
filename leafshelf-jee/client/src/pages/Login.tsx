@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { apiErrorMessage } from '../lib/api';
 import { useAuth } from '../lib/auth';
@@ -96,6 +96,17 @@ export default function Login() {
 
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
+
+  useEffect(() => {
+    function handleMouse(e: MouseEvent) {
+      const x = (e.clientX / window.innerWidth - 0.5) * 2;
+      const y = (e.clientY / window.innerHeight - 0.5) * 2;
+      setMousePos({ x, y });
+    }
+    window.addEventListener('mousemove', handleMouse);
+    return () => window.removeEventListener('mousemove', handleMouse);
+  }, []);
 
   async function handleLogin(e: React.FormEvent) {
     e.preventDefault();
@@ -152,6 +163,8 @@ export default function Login() {
         style={{
           backgroundImage: `url('https://images.unsplash.com/photo-1448375240586-882707db888b?w=1920&q=80')`,
           animation: 'kenBurns 40s ease-in-out infinite',
+          transform: `translate(${mousePos.x * -10}px, ${mousePos.y * -10}px) scale(1.05)`,
+          transition: 'transform 0.5s ease-out',
         }}
       />
       {/* Layer 2: Dark green overlay for readability */}
@@ -162,6 +175,63 @@ export default function Login() {
       {/* Layer 4: Vignette */}
       <div className="absolute inset-0 z-10 pointer-events-none"
            style={{ background: 'radial-gradient(ellipse at center, transparent 40%, rgba(10,20,10,0.6) 100%)' }} />
+
+      {/* Layer 4b: Light shafts */}
+      <div className="absolute inset-0 pointer-events-none overflow-hidden" style={{ zIndex: 5 }}>
+        {[
+          { left: '15%', delay: '0s', width: '120px' },
+          { left: '45%', delay: '4s', width: '80px' },
+          { left: '70%', delay: '7s', width: '100px' },
+        ].map((shaft, i) => (
+          <div
+            key={`shaft-${i}`}
+            className="absolute top-0 h-screen pointer-events-none"
+            style={{
+              left: shaft.left,
+              width: shaft.width,
+              background: 'linear-gradient(to bottom, rgba(255, 230, 150, 0.18), rgba(255, 220, 130, 0.05), transparent)',
+              filter: 'blur(20px)',
+              transform: 'rotate(15deg)',
+              transformOrigin: 'top center',
+              animation: `lightShaftMove 12s ease-in-out ${shaft.delay} infinite`,
+            }}
+          />
+        ))}
+      </div>
+
+      {/* Layer 4c: Drifting mist */}
+      <div className="absolute bottom-0 left-0 right-0 h-1/3 pointer-events-none overflow-hidden" style={{ zIndex: 5 }}>
+        {[0, 1, 2].map(i => (
+          <div
+            key={`mist-${i}`}
+            className="absolute"
+            style={{
+              bottom: `${i * 8}%`,
+              width: '300px',
+              height: '100px',
+              background: 'radial-gradient(ellipse, rgba(200, 220, 200, 0.3), transparent 70%)',
+              filter: 'blur(30px)',
+              animation: `mistDrift ${25 + i * 5}s linear ${i * 8}s infinite`,
+            }}
+          />
+        ))}
+      </div>
+
+      {/* Layer 4d: Cursor spotlight */}
+      <div
+        className="absolute pointer-events-none mix-blend-screen"
+        style={{
+          left: `${(mousePos.x + 1) * 50}%`,
+          top: `${(mousePos.y + 1) * 50}%`,
+          transform: 'translate(-50%, -50%)',
+          width: '400px',
+          height: '400px',
+          background: 'radial-gradient(circle, rgba(255, 230, 150, 0.12), transparent 60%)',
+          transition: 'all 0.3s ease-out',
+          filter: 'blur(20px)',
+          zIndex: 10,
+        }}
+      />
 
       {/* Layer 5: Content */}
       <div className="relative z-20 min-h-screen flex items-center justify-between max-w-7xl mx-auto px-8 lg:px-16 py-12">
