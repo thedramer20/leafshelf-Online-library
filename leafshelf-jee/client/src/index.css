@@ -104,6 +104,14 @@ input:-webkit-autofill:active {
   transition: background-color 9999s ease-in-out 0s !important;
 }
 
+/* Falling leaf animation */
+@keyframes leafFall {
+  0%   { transform: translateY(-20px) rotate(0deg) translateX(0px); opacity: 0; }
+  10%  { opacity: 0.15; }
+  90%  { opacity: 0.15; }
+  100% { transform: translateY(110vh) rotate(360deg) translateX(40px); opacity: 0; }
+}
+
 /* 3D book floating animation */
 @keyframes bookFloat {
   0%, 100% { transform: translateY(0px) rotateY(-8deg) rotateX(5deg); }

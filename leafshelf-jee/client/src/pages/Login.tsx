@@ -159,6 +159,25 @@ export default function Login() {
         {/* Warm spotlight */}
         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-96 h-96 rounded-full z-0 blur-3xl"
              style={{ background: 'radial-gradient(circle, rgba(201,168,76,0.25) 0%, transparent 70%)', opacity: 0.6 }} />
+        {/* Vignette edges */}
+        <div className="absolute inset-0 z-[1] pointer-events-none"
+             style={{ background: 'radial-gradient(ellipse at center, transparent 50%, rgba(10,20,10,0.8) 100%)' }} />
+        {/* Falling leaf shapes */}
+        {[...Array(6)].map((_, i) => (
+          <div
+            key={i}
+            className="absolute text-green-500/15 pointer-events-none z-0"
+            style={{
+              left: `${10 + i * 15}%`,
+              top: `-${20 + i * 10}px`,
+              fontSize: `${14 + i * 3}px`,
+              animation: `leafFall ${8 + i * 3}s linear ${i * 1.5}s infinite`,
+              transform: `rotate(${i * 40}deg)`,
+            }}
+          >
+            🍂
+          </div>
+        ))}
         {/* 3D Book */}
         <div className="relative z-10">
           <Book3D onComplete={() => {
