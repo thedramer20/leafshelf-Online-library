@@ -10,7 +10,8 @@ import { Book3D } from '../components/Book3D';
 import { BorderBeam } from '../components/magicui/border-beam';
 import { Aurora } from '../components/magicui/aurora';
 
-const FOREST_VIDEO_URL = 'https://videos.pexels.com/video-files/852335/852335-hd_1920_1080_24fps.mp4';
+const VIDEO_SRC = 'https://videos.pexels.com/video-files/2491284/2491284-uhd_2732_1440_24fps.mp4';
+const VIDEO_POSTER = 'https://images.unsplash.com/photo-1448375240586-882707db888b?w=1920&q=80';
 
 type Tab = 'login' | 'register';
 type LocationState = { from?: { pathname: string } };
@@ -199,30 +200,21 @@ export default function Login() {
 
   return (
     <div className="relative min-h-screen overflow-hidden">
-      {/* Layer 1: Video background with parallax */}
-      {FOREST_VIDEO_URL ? (
-        <video
-          className="absolute inset-0 w-full h-full object-cover"
-          src={FOREST_VIDEO_URL}
-          autoPlay muted loop playsInline
-          style={{
-            transform: `translate(${mousePos.x * -10}px, ${mousePos.y * -10}px) scale(1.05)`,
-            transition: 'transform 0.5s ease-out',
-          }}
-        />
-      ) : (
-        <div
-          className="absolute inset-0 bg-cover bg-center bg-no-repeat"
-          style={{
-            backgroundImage: `url('https://images.unsplash.com/photo-1448375240586-882707db888b?w=1920&q=80')`,
-            animation: 'kenBurns 40s ease-in-out infinite',
-            transform: `translate(${mousePos.x * -10}px, ${mousePos.y * -10}px) scale(1.05)`,
-            transition: 'transform 0.5s ease-out',
-          }}
-        />
-      )}
+      {/* Layer 1: Cinematic video background with parallax */}
+      <video
+        autoPlay loop muted playsInline
+        className="absolute inset-0 w-full h-full object-cover"
+        poster={VIDEO_POSTER}
+        style={{
+          filter: 'brightness(0.65) saturate(1.2) contrast(1.05)',
+          transform: `translate(${mousePos.x * -10}px, ${mousePos.y * -10}px) scale(1.05)`,
+          transition: 'transform 0.5s ease-out',
+        }}
+      >
+        <source src={VIDEO_SRC} type="video/mp4" />
+      </video>
       {/* Layer 2: Dark overlay */}
-      <div className="absolute inset-0 bg-gradient-to-br from-[#0a1a0a]/70 via-[#1a2e1a]/60 to-[#0f1a0f]/80" />
+      <div className="absolute inset-0 bg-gradient-to-br from-[#0a1a0a]/65 via-[#1a2e1a]/55 to-[#0f1a0f]/75 z-[1]" />
       {/* Layer 2b: Aurora */}
       <Aurora
         className="z-[3]"
