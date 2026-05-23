@@ -92,6 +92,16 @@
   }
 }
 
+/* Override Chrome autofill blue background */
+input:-webkit-autofill,
+input:-webkit-autofill:hover,
+input:-webkit-autofill:focus,
+input:-webkit-autofill:active {
+  -webkit-box-shadow: 0 0 0 1000px #ffffff inset !important;
+  -webkit-text-fill-color: #1C1917 !important;
+  transition: background-color 9999s ease-in-out 0s;
+}
+
 /* Subtle entrance for page content */
 .fade-in {
   animation: fadeIn 0.4s ease-out;
