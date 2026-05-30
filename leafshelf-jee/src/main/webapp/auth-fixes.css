@@ -1,0 +1,47 @@
+html.ls-auth-immersive,
+body.ls-auth-immersive {
+  background: #0d170d !important;
+  min-height: 100%;
+}
+
+body.ls-auth-immersive {
+  overflow-x: hidden;
+}
+
+body.ls-auth-immersive #root,
+body.ls-auth-immersive #root > div {
+  background: #0d170d !important;
+}
+
+body.ls-auth-immersive #root > .relative.min-h-screen {
+  min-height: 100dvh !important;
+}
+
+body.ls-auth-immersive video {
+  background: #0d170d;
+}
+
+body.ls-auth-immersive input[type="email"],
+body.ls-auth-immersive input[type="password"],
+body.ls-auth-immersive input[type="text"] {
+  padding-left: 3rem !important;
+  padding-right: 3rem !important;
+}
+
+body.ls-auth-immersive .relative > span.absolute,
+body.ls-auth-immersive .relative > span[class*="absolute"] {
+  top: 50% !important;
+  transform: translateY(-50%) !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  z-index: 2 !important;
+  line-height: 1 !important;
+}
+
+body.ls-auth-immersive .relative > span.absolute svg,
+body.ls-auth-immersive .relative > span[class*="absolute"] svg {
+  width: 1rem !important;
+  height: 1rem !important;
+  display: block !important;
+}
