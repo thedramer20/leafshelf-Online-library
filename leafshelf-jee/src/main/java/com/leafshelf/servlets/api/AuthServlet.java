@@ -1,121 +1,134 @@
 package com.leafshelf.servlets.api;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.leafshelf.beans.User;
 import com.leafshelf.dao.UserDAO;
-import com.leafshelf.util.Json;
-import com.leafshelf.util.Passwords;
-import com.leafshelf.util.SessionHelper;
-
 import jakarta.servlet.annotation.WebServlet;
-import jakarta.servlet.http.HttpServlet;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.*;
 
 import java.io.IOException;
-import java.sql.SQLException;
 import java.util.Map;
 
-/**
- * /api/auth/register   POST  { name, email, password }
- * /api/auth/login      POST  { email, password }
- * /api/auth/logout     POST
- * /api/auth/me         GET                                  (protected by AuthFilter)
- */
-@WebServlet(urlPatterns = {"/api/auth/register", "/api/auth/login", "/api/auth/logout", "/api/auth/me"})
+@WebServlet("/api/auth/*")
 public class AuthServlet extends HttpServlet {
-
-    private final UserDAO userDAO = new UserDAO();
+    private static final ObjectMapper OM = new ObjectMapper();
+    private static final String SESSION_KEY = "userId";
 
     @Override
-    protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws IOException {
-        if (req.getServletPath().equals("/api/auth/me")) {
-            User u = SessionHelper.currentUser(req);
-            if (u == null) {
-                Json.writeError(resp, HttpServletResponse.SC_UNAUTHORIZED, "Not signed in");
+    protected void doGet(HttpServletRequest req, HttpServletResponse res) throws IOException {
+        res.setContentType("application/json;charset=UTF-8");
+        String path = req.getPathInfo();
+
+        if ("/me".equals(path)) {
+            HttpSession session = req.getSession(false);
+            if (session == null || session.getAttribute(SESSION_KEY) == null) {
+                res.setStatus(401);
+                OM.writeValue(res.getOutputStream(), Map.of("error", "Not authenticated"));
                 return;
             }
-            Json.write(resp, 200, Map.of("user", u));
+            try {
+                long uid = (long) session.getAttribute(SESSION_KEY);
+                User user = new UserDAO().findById(uid);
+                if (user == null) {
+                    res.setStatus(401);
+                    OM.writeValue(res.getOutputStream(), Map.of("error", "User not found"));
+                    return;
+                }
+                OM.writeValue(res.getOutputStream(), Map.of("user", user));
+            } catch (Exception e) {
+                res.setStatus(500);
+                OM.writeValue(res.getOutputStream(), Map.of("error", e.getMessage()));
+            }
             return;
         }
-        Json.writeError(resp, HttpServletResponse.SC_METHOD_NOT_ALLOWED, "GET not allowed");
+
+        res.setStatus(404);
     }
 
     @Override
-    protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws IOException {
-        String path = req.getServletPath();
+    protected void doPost(HttpServletRequest req, HttpServletResponse res) throws IOException {
+        res.setContentType("application/json;charset=UTF-8");
+        String path = req.getPathInfo();
+
+        if ("/register".equals(path)) {
+            handleRegister(req, res);
+        } else if ("/login".equals(path)) {
+            handleLogin(req, res);
+        } else if ("/logout".equals(path)) {
+            handleLogout(req, res);
+        } else {
+            res.setStatus(404);
+        }
+    }
+
+    private void handleRegister(HttpServletRequest req, HttpServletResponse res) throws IOException {
         try {
-            switch (path) {
-                case "/api/auth/register" -> handleRegister(req, resp);
-                case "/api/auth/login"    -> handleLogin(req, resp);
-                case "/api/auth/logout"   -> handleLogout(req, resp);
-                default -> Json.writeError(resp, HttpServletResponse.SC_NOT_FOUND, "Unknown route");
+            @SuppressWarnings("unchecked")
+            Map<String, String> body = OM.readValue(req.getInputStream(), Map.class);
+            String name     = trim(body.get("name"));
+            String email    = trim(body.get("email"));
+            String password = body.get("password");
+
+            if (name.isEmpty() || email.isEmpty() || password == null || password.isBlank()) {
+                res.setStatus(400);
+                OM.writeValue(res.getOutputStream(), Map.of("error", "Name, email and password are required"));
+                return;
             }
-        } catch (SQLException e) {
-            getServletContext().log("DB error", e);
-            Json.writeError(resp, HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "Database error");
+
+            UserDAO dao = new UserDAO();
+            if (dao.findByEmail(email) != null) {
+                res.setStatus(409);
+                OM.writeValue(res.getOutputStream(), Map.of("error", "Email already registered"));
+                return;
+            }
+
+            User user = dao.create(name, email, password);
+            HttpSession session = req.getSession(true);
+            session.setAttribute(SESSION_KEY, user.getId());
+
+            res.setStatus(201);
+            OM.writeValue(res.getOutputStream(), Map.of("user", user));
+        } catch (Exception e) {
+            res.setStatus(500);
+            OM.writeValue(res.getOutputStream(), Map.of("error", e.getMessage()));
         }
     }
 
-    private void handleRegister(HttpServletRequest req, HttpServletResponse resp)
-            throws IOException, SQLException {
-        Map<String, Object> body = Json.readBodyMap(req);
-        String name = str(body.get("name"));
-        String email = lower(str(body.get("email")));
-        String password = str(body.get("password"));
+    private void handleLogin(HttpServletRequest req, HttpServletResponse res) throws IOException {
+        try {
+            @SuppressWarnings("unchecked")
+            Map<String, String> body = OM.readValue(req.getInputStream(), Map.class);
+            String email    = trim(body.get("email"));
+            String password = body.get("password");
 
-        if (name == null || name.length() < 2 || name.length() > 60) {
-            Json.writeError(resp, 400, "Name must be between 2 and 60 characters");
-            return;
-        }
-        if (email == null || !email.matches("^[^@\\s]+@[^@\\s]+\\.[^@\\s]+$")) {
-            Json.writeError(resp, 400, "Invalid email address");
-            return;
-        }
-        if (password == null || password.length() < 6 || password.length() > 120) {
-            Json.writeError(resp, 400, "Password must be at least 6 characters");
-            return;
-        }
+            if (email.isEmpty() || password == null || password.isBlank()) {
+                res.setStatus(400);
+                OM.writeValue(res.getOutputStream(), Map.of("error", "Email and password are required"));
+                return;
+            }
 
-        if (userDAO.findByEmail(email) != null) {
-            Json.writeError(resp, 409, "An account with that email already exists");
-            return;
-        }
+            UserDAO dao  = new UserDAO();
+            User   user  = dao.findByEmail(email);
+            if (user == null || !dao.checkPassword(user, password)) {
+                res.setStatus(401);
+                OM.writeValue(res.getOutputStream(), Map.of("error", "Invalid email or password"));
+                return;
+            }
 
-        boolean firstUser = userDAO.countUsers() == 0;
-        User u = userDAO.create(name, email, Passwords.hash(password));
-        if (firstUser) {
-            userDAO.makeAdmin(u.getId());
-            u.setIsAdmin(true);
+            HttpSession session = req.getSession(true);
+            session.setAttribute(SESSION_KEY, user.getId());
+            OM.writeValue(res.getOutputStream(), Map.of("user", user));
+        } catch (Exception e) {
+            res.setStatus(500);
+            OM.writeValue(res.getOutputStream(), Map.of("error", e.getMessage()));
         }
-        SessionHelper.setUser(req, u);
-        Json.write(resp, 201, Map.of("user", u));
     }
 
-    private void handleLogin(HttpServletRequest req, HttpServletResponse resp)
-            throws IOException, SQLException {
-        Map<String, Object> body = Json.readBodyMap(req);
-        String email = lower(str(body.get("email")));
-        String password = str(body.get("password"));
-        if (email == null || password == null) {
-            Json.writeError(resp, 400, "Email and password are required");
-            return;
-        }
-
-        User u = userDAO.findByEmail(email);
-        if (u == null || !Passwords.verify(password, u.getPasswordHash())) {
-            Json.writeError(resp, 401, "Invalid email or password");
-            return;
-        }
-
-        SessionHelper.setUser(req, u);
-        Json.write(resp, 200, Map.of("user", u));
+    private void handleLogout(HttpServletRequest req, HttpServletResponse res) throws IOException {
+        HttpSession session = req.getSession(false);
+        if (session != null) session.invalidate();
+        OM.writeValue(res.getOutputStream(), Map.of("ok", true));
     }
 
-    private void handleLogout(HttpServletRequest req, HttpServletResponse resp) throws IOException {
-        SessionHelper.clear(req);
-        Json.write(resp, 200, Map.of("ok", true));
-    }
-
-    private static String str(Object o) { return o == null ? null : o.toString().trim(); }
-    private static String lower(String s) { return s == null ? null : s.toLowerCase(); }
+    private String trim(String s) { return s == null ? "" : s.trim(); }
 }

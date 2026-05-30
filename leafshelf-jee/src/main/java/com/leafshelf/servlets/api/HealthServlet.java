@@ -1,25 +1,24 @@
 package com.leafshelf.servlets.api;
 
-import com.leafshelf.util.Json;
-
+import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.annotation.WebServlet;
-import jakarta.servlet.http.HttpServlet;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.*;
 
 import java.io.IOException;
 import java.time.Instant;
 import java.util.Map;
 
-@WebServlet(urlPatterns = "/api/health")
+@WebServlet("/api/health")
 public class HealthServlet extends HttpServlet {
+    private static final ObjectMapper OM = new ObjectMapper();
 
     @Override
-    protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws IOException {
-        Json.write(resp, 200, Map.of(
-                "ok", true,
-                "service", "leafshelf-api",
-                "time", Instant.now().toString()
+    protected void doGet(HttpServletRequest req, HttpServletResponse res) throws IOException {
+        res.setContentType("application/json;charset=UTF-8");
+        OM.writeValue(res.getOutputStream(), Map.of(
+            "ok", true,
+            "service", "leafshelf-api",
+            "time", Instant.now().toString()
         ));
     }
 }

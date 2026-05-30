@@ -1,46 +1,105 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { borrow, listBooks } from '../lib/api';
+import { addLocalBorrow, borrow, getFavoriteIds, listBooks, toggleFavorite } from '../lib/api';
 import { useAuth } from '../lib/auth';
 import type { Book } from '../lib/types';
 
-type FavTab = 'all' | 'books' | 'audiobooks' | 'collections' | 'recent';
-const FAV_TABS: { id: FavTab; label: string; count: number }[] = [
-  { id: 'all', label: 'All Favorites', count: 48 },
-  { id: 'books', label: 'Books', count: 36 },
-  { id: 'audiobooks', label: 'Audiobooks', count: 8 },
-  { id: 'collections', label: 'Collections', count: 4 },
-  { id: 'recent', label: 'Recently Added', count: 8 },
-];
+const FAV_ANIMS = `
+@keyframes favHeroGrad {
+  0%,100%{background-position:0% 50%}
+  50%{background-position:100% 50%}
+}
+@keyframes favHeartBeat {
+  0%,100%{transform:scale(1)}
+  14%{transform:scale(1.28)}
+  28%{transform:scale(0.96)}
+  42%{transform:scale(1.15)}
+  70%{transform:scale(1)}
+}
+@keyframes favFloat {
+  0%{transform:translateY(0) rotate(0deg) scale(1);opacity:0.7}
+  100%{transform:translateY(-70px) rotate(25deg) scale(0.5);opacity:0}
+}
+@keyframes favScan {
+  0%{transform:translateX(-100%);opacity:0}
+  40%{opacity:1}
+  60%{opacity:1}
+  100%{transform:translateX(200%);opacity:0}
+}
+@keyframes favCardIn {
+  0%{opacity:0;transform:translateY(22px) scale(0.94)}
+  100%{opacity:1;transform:translateY(0) scale(1)}
+}
+@keyframes favStatIn {
+  0%{opacity:0;transform:translateY(20px) scale(0.9)}
+  60%{transform:translateY(-3px) scale(1.03)}
+  100%{opacity:1;transform:translateY(0) scale(1)}
+}
+@keyframes favSideIn {
+  0%{opacity:0;transform:translateX(22px)}
+  100%{opacity:1;transform:translateX(0)}
+}
+@keyframes favHeaderIn {
+  0%{opacity:0;transform:translateY(-14px)}
+  100%{opacity:1;transform:translateY(0)}
+}
+@keyframes favBarFill {
+  0%{width:0%}
+}
+@keyframes favShimmer {
+  0%{transform:translateX(-100%)}
+  100%{transform:translateX(200%)}
+}
+@keyframes favEmptyIn {
+  0%{opacity:0;transform:scale(0.88)}
+  60%{transform:scale(1.04)}
+  100%{opacity:1;transform:scale(1)}
+}
+@keyframes favMoodPop {
+  0%{opacity:0;transform:scale(0.8) translateX(-6px)}
+  70%{transform:scale(1.03)}
+  100%{opacity:1;transform:scale(1) translateX(0)}
+}
+@keyframes favHeroBadge {
+  0%{opacity:0;transform:scale(0.8) translateY(6px)}
+  70%{transform:scale(1.05)}
+  100%{opacity:1;transform:scale(1) translateY(0)}
+}
+@keyframes favPulseRing {
+  0%{box-shadow:0 0 0 0 rgba(27,67,50,0.4)}
+  70%{box-shadow:0 0 0 12px rgba(27,67,50,0)}
+  100%{box-shadow:0 0 0 0 rgba(27,67,50,0)}
+}
+`;
 
-const STAT_CARDS = [
-  { icon: '♡', label: 'Total Favorites', value: '48' },
-  { icon: '📚', label: 'Want to Read', value: '27' },
-  { icon: '✨', label: 'Recommended', value: '12' },
-  { icon: '🕐', label: 'Recently Added', value: '8' },
-];
+type FavTab = 'all' | 'books' | 'recent';
 
-const GENRES = [
-  { name: 'Fiction', pct: 35, count: 17 },
-  { name: 'Science Fiction', pct: 22, count: 11 },
-  { name: 'Fantasy', pct: 18, count: 9 },
-  { name: 'Classic', pct: 14, count: 7 },
-  { name: 'Self-Help', pct: 11, count: 4 },
-];
+const GENRE_COLORS: Record<string, { color: string; bg: string; bar: string }> = {
+  Classic:    { color: '#059669', bg: '#ecfdf5', bar: 'linear-gradient(90deg,#34d399,#059669)' },
+  Fiction:    { color: '#2563eb', bg: '#eff6ff', bar: 'linear-gradient(90deg,#60a5fa,#2563eb)' },
+  Fantasy:    { color: '#7c3aed', bg: '#f5f3ff', bar: 'linear-gradient(90deg,#a78bfa,#7c3aed)' },
+  Dystopian:  { color: '#e11d48', bg: '#fff1f2', bar: 'linear-gradient(90deg,#fb7185,#e11d48)' },
+  Romance:    { color: '#db2777', bg: '#fdf2f8', bar: 'linear-gradient(90deg,#f472b6,#db2777)' },
+  Science:    { color: '#0891b2', bg: '#ecfeff', bar: 'linear-gradient(90deg,#22d3ee,#0891b2)' },
+  Horror:     { color: '#c2410c', bg: '#fff7ed', bar: 'linear-gradient(90deg,#fb923c,#c2410c)' },
+  Memoir:     { color: '#d97706', bg: '#fffbeb', bar: 'linear-gradient(90deg,#fbbf24,#d97706)' },
+  Historical: { color: '#6d28d9', bg: '#f5f3ff', bar: 'linear-gradient(90deg,#c084fc,#6d28d9)' },
+};
+const DEFAULT_GENRE = { color: '#2563eb', bg: '#eff6ff', bar: 'linear-gradient(90deg,#60a5fa,#2563eb)' };
 
 const MOODS = [
-  { label: 'Cozy', emoji: '☕' },
-  { label: 'Adventurous', emoji: '🏔️' },
-  { label: 'Thought-Provoking', emoji: '💭' },
-  { label: 'Light & Fun', emoji: '😄' },
-  { label: 'Emotional', emoji: '❤️' },
+  { label: 'Cozy',             emoji: '☕', color: '#d97706', bg: '#fffbeb', border: '#fde68a', glow: 'rgba(217,119,6,0.2)' },
+  { label: 'Adventurous',      emoji: '🏔️', color: '#059669', bg: '#ecfdf5', border: '#6ee7b7', glow: 'rgba(5,150,105,0.2)' },
+  { label: 'Thought-Provoking',emoji: '💭', color: '#7c3aed', bg: '#f5f3ff', border: '#c4b5fd', glow: 'rgba(124,58,237,0.2)' },
+  { label: 'Light & Fun',      emoji: '😄', color: '#ea580c', bg: '#fff7ed', border: '#fed7aa', glow: 'rgba(234,88,12,0.2)' },
+  { label: 'Emotional',        emoji: '❤️', color: '#e11d48', bg: '#fff1f2', border: '#fecdd3', glow: 'rgba(225,29,72,0.2)' },
 ];
 
 function Stars({ rating }: { rating: number }) {
   return (
-    <div className="flex items-center gap-0.5">
+    <div style={{ display: 'flex', gap: 2 }}>
       {[1, 2, 3, 4, 5].map(i => (
-        <svg key={i} className={`w-3 h-3 ${i <= Math.round(rating) ? 'text-gold' : 'text-gray-200'}`} fill="currentColor" viewBox="0 0 20 20">
+        <svg key={i} style={{ width: 11, height: 11, color: i <= Math.round(rating) ? '#f59e0b' : '#e5e7eb' }} fill="currentColor" viewBox="0 0 20 20">
           <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
         </svg>
       ))}
@@ -48,11 +107,35 @@ function Stars({ rating }: { rating: number }) {
   );
 }
 
-function BookCard({ book, onBorrow, onRemove }: { book: Book; onBorrow: (id: number) => void; onRemove: (id: number) => void }) {
+function FloatingLeafs() {
+  const items = ['🌿', '☘️', '🍃', '🌱', '🌿', '🍃', '☘️', '🌱'];
+  return (
+    <div style={{ position: 'absolute', inset: 0, overflow: 'hidden', pointerEvents: 'none' }}>
+      {items.map((h, i) => (
+        <span key={i} style={{
+          position: 'absolute',
+          left: `${5 + i * 12}%`,
+          bottom: 0,
+          fontSize: `${10 + (i % 4) * 5}px`,
+          animation: `favFloat ${2.2 + i * 0.35}s ease-out ${i * 0.45}s infinite`,
+          opacity: 0.35,
+          userSelect: 'none',
+          pointerEvents: 'none',
+        }}>{h}</span>
+      ))}
+    </div>
+  );
+}
+
+function BookCard({
+  book, onBorrow, onRemove, index = 0,
+}: {
+  book: Book; onBorrow: (id: number) => void; onRemove: (id: number) => void; index?: number;
+}) {
   const navigate = useNavigate();
+  const [hovered, setHovered] = useState(false);
   const [borrowing, setBorrowing] = useState(false);
   const [borrowed, setBorrowed] = useState(false);
-  const [removed, setRemoved] = useState(false);
 
   async function handleBorrow(e: React.MouseEvent) {
     e.stopPropagation();
@@ -60,47 +143,143 @@ function BookCard({ book, onBorrow, onRemove }: { book: Book; onBorrow: (id: num
     try { onBorrow(book.id); setBorrowed(true); } catch { /* ignore */ } finally { setBorrowing(false); }
   }
 
-  if (removed) return null;
+  function handleUnfavorite(e: React.MouseEvent) {
+    e.stopPropagation();
+    toggleFavorite(book.id);
+    onRemove(book.id);
+  }
 
   return (
-    <div className="bg-white rounded-card border border-border overflow-hidden hover:shadow-md hover:-translate-y-1 transition-all duration-200 group flex flex-col cursor-pointer"
-      onClick={() => navigate(`/books/${book.id}`)}>
-      <div className="relative overflow-hidden flex-shrink-0" style={{ paddingBottom: '150%' }}>
-        {book.cover_url
-          ? <img src={book.cover_url} alt={book.title} className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" loading="lazy" />
-          : <div className="absolute inset-0 bg-gradient-to-br from-forest-dark/20 to-forest-dark/40 flex items-end p-2"><span className="text-white text-xs leading-tight line-clamp-2">{book.title}</span></div>
-        }
-        <button onClick={e => { e.stopPropagation(); setRemoved(true); onRemove(book.id); }}
-          className="absolute top-2 left-2 w-6 h-6 rounded-full bg-red-500 text-white text-xs flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
-          ×
-        </button>
-        <div className="absolute top-2 right-2 text-red-500">
-          <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
-            <path d="M11.645 20.91l-.007-.003-.022-.012a15.247 15.247 0 01-.383-.218 25.18 25.18 0 01-4.244-3.17C4.688 15.36 2.25 12.174 2.25 8.25 2.25 5.322 4.714 3 7.688 3A5.5 5.5 0 0112 5.052 5.5 5.5 0 0116.313 3c2.973 0 5.437 2.322 5.437 5.25 0 3.925-2.438 7.111-4.739 9.256a25.175 25.175 0 01-4.244 3.17 15.247 15.247 0 01-.383.219l-.022.012-.007.004-.003.001a.752.752 0 01-.704 0l-.003-.001z" />
-          </svg>
+    <div style={{ animation: 'favCardIn 0.42s ease both', animationDelay: `${index * 0.055}s` }}>
+      <div
+        onMouseEnter={() => setHovered(true)}
+        onMouseLeave={() => setHovered(false)}
+        onClick={() => navigate(`/books/${book.id}`)}
+        style={{
+          borderRadius: 18,
+          overflow: 'hidden',
+          background: '#fff',
+          boxShadow: hovered
+            ? '0 24px 48px rgba(27,67,50,0.16), 0 8px 24px rgba(0,0,0,0.10)'
+            : '0 2px 12px rgba(0,0,0,0.06), 0 1px 3px rgba(0,0,0,0.04)',
+          transform: hovered ? 'translateY(-8px) scale(1.02)' : 'translateY(0) scale(1)',
+          transition: 'all 0.32s cubic-bezier(0.34,1.56,0.64,1)',
+          cursor: 'pointer',
+          position: 'relative' as const,
+          display: 'flex',
+          flexDirection: 'column' as const,
+          border: hovered ? '1.5px solid #A7F3D0' : '1.5px solid #f1f5f9',
+        }}
+      >
+        {/* Shimmer on hover */}
+        {hovered && (
+          <div style={{
+            position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, zIndex: 10,
+            background: 'linear-gradient(90deg,transparent 0%,rgba(255,255,255,0.18) 50%,transparent 100%)',
+            animation: 'favShimmer 1.2s ease infinite',
+            pointerEvents: 'none',
+          }} />
+        )}
+
+        {/* Cover area */}
+        <div style={{ position: 'relative', paddingBottom: '148%', flexShrink: 0 }}>
+          {book.cover_url
+            ? (
+              <img
+                src={book.cover_url}
+                alt={book.title}
+                style={{
+                  position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover',
+                  transition: 'transform 0.4s ease',
+                  transform: hovered ? 'scale(1.08)' : 'scale(1)',
+                }}
+                loading="lazy"
+              />
+            ) : (
+              <div style={{
+                position: 'absolute', inset: 0,
+                background: 'linear-gradient(135deg,#1B4332,#2D6A4F)',
+                display: 'flex', alignItems: 'flex-end', padding: 10,
+              }}>
+                <span style={{ color: '#D8F3DC', fontSize: 11, fontWeight: 600, lineHeight: 1.3 }}>{book.title}</span>
+              </div>
+            )}
+
+          {/* Dark overlay on hover */}
+          <div style={{
+            position: 'absolute', inset: 0,
+            background: 'linear-gradient(to top, rgba(10,4,20,0.92) 0%, rgba(10,4,20,0.35) 55%, rgba(0,0,0,0.1) 100%)',
+            opacity: hovered ? 1 : 0,
+            transition: 'opacity 0.3s ease',
+            display: 'flex', flexDirection: 'column', justifyContent: 'flex-end',
+            padding: 10, gap: 7,
+          }}>
+            <button
+              onClick={handleBorrow}
+              disabled={borrowing || borrowed || !book.available}
+              style={{
+                width: '100%', padding: '8px 0', borderRadius: 12, border: 'none', cursor: 'pointer',
+                fontSize: 12, fontWeight: 700, letterSpacing: '0.2px',
+                background: borrowed
+                  ? 'linear-gradient(135deg,#22c55e,#16a34a)'
+                  : !book.available
+                    ? 'rgba(255,255,255,0.18)'
+                    : 'linear-gradient(135deg,#1B4332,#2D6A4F)',
+                color: !book.available ? 'rgba(255,255,255,0.45)' : '#fff',
+                transition: 'transform 0.15s',
+                boxShadow: !borrowed && book.available ? '0 4px 12px rgba(27,67,50,0.45)' : 'none',
+              }}
+            >
+              {borrowed ? '✓ Borrowed' : borrowing ? '…' : '📖 Borrow'}
+            </button>
+            <button
+              onClick={handleUnfavorite}
+              style={{
+                width: '100%', padding: '7px 0', borderRadius: 12,
+                border: '1px solid rgba(255,255,255,0.28)', cursor: 'pointer',
+                fontSize: 12, fontWeight: 600,
+                background: 'rgba(255,255,255,0.1)', color: 'rgba(255,255,255,0.85)',
+                backdropFilter: 'blur(4px)',
+              }}
+            >
+              ♡ Remove
+            </button>
+          </div>
+
+          {/* Available dot */}
+          <span style={{
+            position: 'absolute', top: 9, left: 9, width: 9, height: 9, borderRadius: '50%',
+            background: book.available ? '#22c55e' : '#ef4444',
+            border: '2px solid white',
+            boxShadow: `0 1px 4px ${book.available ? 'rgba(34,197,94,0.5)' : 'rgba(239,68,68,0.5)'}`,
+          }} />
+
+          {/* Heart badge */}
+          <div style={{
+            position: 'absolute', top: 8, right: 8, width: 28, height: 28, borderRadius: '50%',
+            background: 'rgba(255,255,255,0.94)', backdropFilter: 'blur(6px)',
+            display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 14,
+            boxShadow: '0 2px 10px rgba(0,0,0,0.18)',
+            animation: 'favHeartBeat 2.6s ease-in-out infinite',
+          }}>❤️</div>
+
+          {/* Category badge */}
+          <div style={{
+            position: 'absolute', bottom: 8, left: 8,
+            padding: '3px 9px', borderRadius: 20,
+            background: 'rgba(0,0,0,0.58)', backdropFilter: 'blur(6px)',
+            fontSize: 10, color: '#fff', fontWeight: 700, letterSpacing: '0.2px',
+          }}>{book.category}</div>
         </div>
-        <span className={`absolute bottom-2 left-2 w-2 h-2 rounded-full border border-white ${book.available ? 'bg-green-500' : 'bg-red-500'}`} />
-      </div>
-      <div className="p-3 flex flex-col flex-1">
-        <p className="text-[11px] text-muted truncate mb-0.5">{book.author}</p>
-        <p className="text-xs font-semibold text-ink line-clamp-2 leading-tight flex-1">{book.title}</p>
-        <div className="flex items-center gap-1 mt-1.5">
-          <Stars rating={book.rating} />
-          <span className="text-[10px] text-muted">{book.rating.toFixed(1)}</span>
-        </div>
-        <div className="flex gap-1 mt-2">
-          <button onClick={handleBorrow} disabled={borrowing || borrowed || !book.available}
-            className={`flex-1 py-1.5 rounded-lg text-[11px] font-semibold transition-colors ${
-              borrowed ? 'bg-green-100 text-green-700' :
-              !book.available ? 'bg-gray-100 text-gray-400 cursor-not-allowed' :
-              'bg-forest-dark text-white hover:bg-forest'
-            }`}>
-            {borrowed ? '✓' : borrowing ? '…' : 'Borrow'}
-          </button>
-          <button onClick={e => { e.stopPropagation(); setRemoved(true); onRemove(book.id); }}
-            className="px-2 py-1.5 rounded-lg text-[11px] font-semibold border border-border text-muted hover:bg-red-50 hover:text-red-600 hover:border-red-200 transition-colors">
-            ♡
-          </button>
+
+        {/* Info panel */}
+        <div style={{ padding: '10px 12px 13px' }}>
+          <p style={{ fontSize: 11, color: '#9ca3af', margin: '0 0 2px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{book.author}</p>
+          <p style={{ fontSize: 13, fontWeight: 700, color: '#111827', lineHeight: 1.35, margin: '0 0 7px', overflow: 'hidden', maxHeight: 36 }}>{book.title}</p>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 5 }}>
+            <Stars rating={book.rating} />
+            <span style={{ fontSize: 10, color: '#9ca3af', fontWeight: 600 }}>{book.rating.toFixed(1)}</span>
+          </div>
         </div>
       </div>
     </div>
@@ -110,139 +289,314 @@ function BookCard({ book, onBorrow, onRemove }: { book: Book; onBorrow: (id: num
 export default function Favorites() {
   const navigate = useNavigate();
   const { user } = useAuth();
-  const [books, setBooks] = useState<Book[]>([]);
+  const [allBooks, setAllBooks] = useState<Book[]>([]);
   const [recBooks, setRecBooks] = useState<Book[]>([]);
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState<FavTab>('all');
   const [selectedMood, setSelectedMood] = useState<string | null>(null);
-  const [removedIds, setRemovedIds] = useState<Set<number>>(new Set());
+  const [favIds, setFavIds] = useState<Set<number>>(() => new Set(getFavoriteIds()));
 
   useEffect(() => {
     listBooks().then(b => {
-      setBooks(b);
+      setAllBooks(b);
       setRecBooks(b.filter(bk => bk.available).slice(8, 11));
     }).finally(() => setLoading(false));
   }, []);
 
   async function handleBorrow(bookId: number) {
-    if (!user) { navigate('/login'); return; }
-    await borrow(bookId);
+    const b = allBooks.find(x => x.id === bookId);
+    if (b) addLocalBorrow({ id: b.id, title: b.title, author: b.author, cover_url: b.cover_url, category: b.category, pages: b.pages });
+    if (user) { try { await borrow(bookId); } catch { /* keep local borrow */ } }
   }
 
   function handleRemove(id: number) {
-    setRemovedIds(prev => new Set(prev).add(id));
+    setFavIds(prev => { const next = new Set(prev); next.delete(id); return next; });
   }
 
-  const displayed = books.filter(b => !removedIds.has(b.id));
+  const favBooks = allBooks.filter(b => favIds.has(b.id));
+  const displayed = activeTab === 'recent' ? favBooks.slice(0, 5) : favBooks;
+
+  // Genre distribution from real data
+  const genreCounts: Record<string, number> = {};
+  favBooks.forEach(b => { genreCounts[b.category] = (genreCounts[b.category] || 0) + 1; });
+  const totalFav = favBooks.length || 1;
+  const genres = Object.entries(genreCounts)
+    .sort(([, a], [, b]) => b - a)
+    .slice(0, 5)
+    .map(([name, count]) => ({ name, count, pct: Math.round((count / totalFav) * 100) }));
+
+  const tabs: { id: FavTab; label: string; count: number }[] = [
+    { id: 'all', label: 'All Favorites', count: favBooks.length },
+    { id: 'books', label: 'Books', count: favBooks.length },
+    { id: 'recent', label: 'Recently Added', count: Math.min(5, favBooks.length) },
+  ];
+
+  const statCards = [
+    { icon: '🌿', label: 'Total Favorites',  value: favBooks.length,                              color: '#1B4332', bg: 'linear-gradient(135deg,#D1FAE5,#ECFDF5)', border: '#6EE7B7', glow: 'rgba(27,67,50,0.14)' },
+    { icon: '📚', label: 'Available Now',     value: favBooks.filter(b => b.available).length,     color: '#065F46', bg: 'linear-gradient(135deg,#ECFDF5,#D1FAE5)', border: '#A7F3D0', glow: 'rgba(5,150,105,0.14)' },
+    { icon: '✨', label: 'Genres',            value: new Set(favBooks.map(b => b.category)).size,  color: '#2D6A4F', bg: 'linear-gradient(135deg,#F0FDF4,#D1FAE5)', border: '#6EE7B7', glow: 'rgba(45,106,79,0.14)' },
+    { icon: '🕐', label: 'Recently Added',   value: Math.min(5, favBooks.length),                 color: '#1B4332', bg: 'linear-gradient(135deg,#F0FDF4,#ECFDF5)', border: '#A7F3D0', glow: 'rgba(27,67,50,0.10)' },
+  ];
 
   return (
-    <div className="flex gap-6 p-6 min-h-full">
-      {/* Main content */}
-      <div className="flex-1 min-w-0">
-        <div className="mb-6">
-          <h1 className="font-serif text-2xl font-bold text-ink">Favorites</h1>
-          <p className="text-sm text-muted mt-1">Books you love and want to read</p>
-        </div>
+    <>
+      <style>{FAV_ANIMS}</style>
+      <div style={{ background: '#F6FAF8', minHeight: '100%' }}>
 
-        {/* Stat cards */}
-        <div className="grid grid-cols-4 gap-4 mb-6">
-          {STAT_CARDS.map(({ icon, label, value }) => (
-            <div key={label} className="bg-white rounded-card border border-border shadow-soft p-4">
-              <div className="text-2xl mb-2">{icon}</div>
-              <p className="text-2xl font-bold text-ink">{value}</p>
-              <p className="text-xs text-muted">{label}</p>
-            </div>
-          ))}
-        </div>
+        {/* ── Hero ── */}
+        <div style={{
+          position: 'relative',
+          background: 'linear-gradient(135deg,#071a0f 0%,#0e2318 15%,#1B4332 38%,#2D6A4F 62%,#1B4332 82%,#071a0f 100%)',
+          backgroundSize: '300% 300%',
+          animation: 'favHeroGrad 10s ease infinite',
+          padding: '32px 24px 28px',
+          overflow: 'hidden',
+          borderBottom: '1px solid #0e2318',
+        }}>
+          <FloatingLeafs />
 
-        {/* Tabs */}
-        <div className="flex gap-1 border-b border-border mb-5 overflow-x-auto scrollbar-hide">
-          {FAV_TABS.map(t => (
-            <button key={t.id} onClick={() => setActiveTab(t.id)}
-              className={`flex-shrink-0 px-4 py-2.5 text-sm font-medium border-b-2 -mb-px transition-colors whitespace-nowrap ${
-                activeTab === t.id ? 'text-forest-dark border-forest-dark' : 'text-muted border-transparent hover:text-ink'
-              }`}>
-              {t.label} <span className="ml-1 text-[11px] text-muted">({t.count})</span>
-            </button>
-          ))}
-        </div>
+          {/* Scan shimmer */}
+          <div style={{
+            position: 'absolute', top: 0, left: 0, bottom: 0, width: 120,
+            background: 'linear-gradient(90deg,transparent,rgba(82,183,136,0.10),transparent)',
+            animation: 'favScan 4s ease-in-out 1s infinite',
+            pointerEvents: 'none',
+          }} />
+          <div style={{ position: 'absolute', top: -60, right: -60, width: 240, height: 240, borderRadius: '50%', background: 'radial-gradient(circle,rgba(82,183,136,0.12),transparent 70%)', pointerEvents: 'none' }} />
 
-        {loading ? (
-          <div className="grid gap-4" style={{ gridTemplateColumns: 'repeat(auto-fill, minmax(150px, 1fr))' }}>
-            {Array.from({ length: 12 }).map((_, i) => <div key={i} className="rounded-card bg-gray-100 animate-pulse" style={{ paddingBottom: '200%' }} />)}
-          </div>
-        ) : (
-          <div className="grid gap-4" style={{ gridTemplateColumns: 'repeat(auto-fill, minmax(150px, 1fr))' }}>
-            {displayed.map(book => (
-              <BookCard key={book.id} book={book} onBorrow={handleBorrow} onRemove={handleRemove} />
-            ))}
-          </div>
-        )}
-      </div>
+          <div style={{ position: 'relative', zIndex: 1, animation: 'favHeaderIn 0.5s ease both' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 14, marginBottom: 18 }}>
+              <div style={{
+                width: 56, height: 56, borderRadius: '50%',
+                background: 'linear-gradient(135deg,#1B4332,#2D6A4F)',
+                border: '2px solid rgba(82,183,136,0.4)',
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+                fontSize: 26,
+                animation: 'favHeartBeat 1.8s ease-in-out infinite, favPulseRing 2s ease-out 0.5s infinite',
+                boxShadow: '0 4px 16px rgba(27,67,50,0.35)',
+                flexShrink: 0,
+              }}>🌿</div>
 
-      {/* Right panel */}
-      <aside className="w-60 flex-shrink-0 space-y-4">
-        {/* Favorite genres */}
-        <div className="bg-white rounded-card border border-border shadow-soft p-4">
-          <h3 className="font-semibold text-sm text-ink mb-4">Favorite Genres</h3>
-          <div className="space-y-3">
-            {GENRES.map(({ name, pct, count }) => (
-              <div key={name}>
-                <div className="flex justify-between text-xs mb-1">
-                  <span className="text-ink font-medium">{name}</span>
-                  <span className="text-muted">{count} books</span>
-                </div>
-                <div className="w-full bg-gray-100 rounded-full h-1.5">
-                  <div className="bg-forest-dark rounded-full h-1.5" style={{ width: `${pct}%` }} />
-                </div>
+              <div>
+                <h1 style={{ fontSize: 30, fontWeight: 800, color: 'white', letterSpacing: '-0.6px', margin: 0, lineHeight: 1.1, fontFamily: 'Georgia,serif' }}>
+                  My Favorites
+                </h1>
+                <p style={{ fontSize: 14, color: 'rgba(255,255,255,0.58)', margin: '5px 0 0', fontWeight: 500 }}>
+                  Your personal book collection
+                </p>
               </div>
-            ))}
-          </div>
-        </div>
+            </div>
 
-        {/* Reading mood */}
-        <div className="bg-white rounded-card border border-border shadow-soft p-4">
-          <h3 className="font-semibold text-sm text-ink mb-3">Reading Mood</h3>
-          <div className="flex flex-wrap gap-2">
-            {MOODS.map(({ label, emoji }) => (
-              <button key={label} onClick={() => setSelectedMood(selectedMood === label ? null : label)}
-                className={`px-3 py-1.5 rounded-full text-xs font-medium transition-colors ${
-                  selectedMood === label
-                    ? 'bg-forest-dark text-white'
-                    : 'bg-gray-50 text-muted border border-gray-200 hover:border-forest-dark hover:text-forest-dark'
-                }`}>
-                {emoji} {label}
-              </button>
-            ))}
-          </div>
-        </div>
-
-        {/* Recommended */}
-        {recBooks.length > 0 && (
-          <div className="bg-white rounded-card border border-border shadow-soft p-4">
-            <h3 className="font-semibold text-sm text-ink mb-3">Recommended For You</h3>
-            <div className="space-y-3">
-              {recBooks.map(book => (
-                <div key={book.id} className="flex gap-2 items-center cursor-pointer group"
-                  onClick={() => navigate(`/books/${book.id}`)}>
-                  <div className="w-10 h-14 flex-shrink-0 rounded overflow-hidden bg-gray-100">
-                    {book.cover_url && <img src={book.cover_url} alt={book.title} className="w-full h-full object-cover" />}
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <p className="text-xs font-semibold text-ink line-clamp-1 group-hover:text-forest-dark transition-colors">{book.title}</p>
-                    <p className="text-[10px] text-muted truncate">{book.author}</p>
-                    <button onClick={e => { e.stopPropagation(); void handleBorrow(book.id); }}
-                      disabled={!book.available}
-                      className="mt-1 text-[10px] px-2 py-0.5 bg-forest-dark text-white rounded font-semibold hover:bg-forest transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
-                      Borrow
-                    </button>
-                  </div>
+            {/* Hero quick-stat pills */}
+            <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap' }}>
+              {[
+                { v: favBooks.length,                              l: 'Books Saved' },
+                { v: favBooks.filter(b => b.available).length,     l: 'Available' },
+                { v: new Set(favBooks.map(b => b.category)).size,  l: 'Genres' },
+              ].map(({ v, l }, i) => (
+                <div key={l} style={{
+                  display: 'flex', alignItems: 'center', gap: 7,
+                  padding: '7px 16px', borderRadius: 24,
+                  background: 'rgba(255,255,255,0.10)', border: '1px solid rgba(255,255,255,0.18)',
+                  animation: 'favHeroBadge 0.4s ease both',
+                  animationDelay: `${i * 0.07}s`,
+                  backdropFilter: 'blur(8px)',
+                }}>
+                  <span style={{ fontSize: 20, fontWeight: 800, color: 'white', lineHeight: 1 }}>{v}</span>
+                  <span style={{ fontSize: 12, color: 'rgba(255,255,255,0.65)', fontWeight: 500 }}>{l}</span>
                 </div>
               ))}
             </div>
           </div>
-        )}
-      </aside>
-    </div>
+        </div>
+
+        {/* ── Content ── */}
+        <div style={{ display: 'flex', gap: 20, padding: '20px 24px 32px', alignItems: 'flex-start' }}>
+
+          {/* Main */}
+          <div style={{ flex: 1, minWidth: 0 }}>
+
+            {/* Stat cards */}
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4,1fr)', gap: 12, marginBottom: 20 }}>
+              {statCards.map(({ icon, label, value, color, bg, border, glow }, idx) => (
+                <div key={label} style={{
+                  background: bg, border: `1.5px solid ${border}`,
+                  borderRadius: 18, padding: '16px 18px',
+                  animation: 'favStatIn 0.45s ease both',
+                  animationDelay: `${idx * 0.07}s`,
+                  boxShadow: `0 4px 20px ${glow}`,
+                  position: 'relative', overflow: 'hidden',
+                }}>
+                  <div style={{
+                    position: 'absolute', top: 0, left: 0, right: 0, bottom: 0,
+                    background: 'linear-gradient(90deg,transparent 0%,rgba(255,255,255,0.55) 50%,transparent 100%)',
+                    animation: 'favShimmer 3s ease infinite',
+                    animationDelay: `${idx * 0.5}s`,
+                    pointerEvents: 'none',
+                  }} />
+                  <div style={{
+                    fontSize: 26, marginBottom: 10, display: 'inline-block',
+                    animation: idx === 0 ? 'favHeartBeat 1.8s ease-in-out 0.5s infinite' : 'none',
+                  }}>{icon}</div>
+                  <p style={{ fontSize: 30, fontWeight: 800, color, margin: '0 0 3px', letterSpacing: '-0.5px', lineHeight: 1 }}>{value}</p>
+                  <p style={{ fontSize: 11, color: '#64748b', margin: 0, fontWeight: 500 }}>{label}</p>
+                </div>
+              ))}
+            </div>
+
+            {/* Pill tabs */}
+            <div style={{ display: 'flex', gap: 6, marginBottom: 20, background: '#E8F5E9', borderRadius: 14, padding: 5, width: 'fit-content' }}>
+              {tabs.map(t => (
+                <button key={t.id} onClick={() => setActiveTab(t.id)} style={{
+                  padding: '8px 20px', borderRadius: 10, border: 'none', cursor: 'pointer',
+                  fontSize: 13, fontWeight: 600,
+                  background: activeTab === t.id ? '#fff' : 'transparent',
+                  color: activeTab === t.id ? '#1B4332' : '#64748b',
+                  boxShadow: activeTab === t.id ? '0 2px 10px rgba(27,67,50,0.12)' : 'none',
+                  transition: 'all 0.22s ease',
+                  whiteSpace: 'nowrap',
+                }}>
+                  {t.label}
+                  <span style={{
+                    marginLeft: 7, fontSize: 11, padding: '2px 7px', borderRadius: 8,
+                    background: activeTab === t.id ? '#D1FAE5' : 'rgba(0,0,0,0.07)',
+                    color: activeTab === t.id ? '#1B4332' : '#94a3b8',
+                    fontWeight: 700,
+                  }}>{t.count}</span>
+                </button>
+              ))}
+            </div>
+
+            {/* Book grid / states */}
+            {loading ? (
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill,minmax(155px,1fr))', gap: 14 }}>
+                {Array.from({ length: 8 }).map((_, i) => (
+                  <div key={i} style={{ borderRadius: 18, background: 'linear-gradient(135deg,#f1f5f9,#e2e8f0)', aspectRatio: '0.67', animation: 'pulse 1.5s ease infinite', animationDelay: `${i * 0.08}s` }} />
+                ))}
+              </div>
+            ) : displayed.length === 0 ? (
+              <div style={{ textAlign: 'center', padding: '80px 20px', animation: 'favEmptyIn 0.5s ease both' }}>
+                <div style={{ fontSize: 72, marginBottom: 16, display: 'inline-block', animation: 'favHeartBeat 1.8s ease-in-out infinite' }}>♡</div>
+                <p style={{ fontSize: 22, fontWeight: 800, color: '#0f172a', marginBottom: 8 }}>No favorites yet</p>
+                <p style={{ fontSize: 14, color: '#64748b', marginBottom: 24 }}>Click the heart on any book to save it here</p>
+                <button onClick={() => navigate('/books')} style={{
+                  padding: '12px 28px',
+                  background: 'linear-gradient(135deg,#1B4332,#2D6A4F)',
+                  color: '#fff', border: 'none', borderRadius: 14,
+                  fontSize: 14, fontWeight: 700, cursor: 'pointer',
+                  boxShadow: '0 6px 20px rgba(27,67,50,0.35)',
+                }}>Browse Books</button>
+              </div>
+            ) : (
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill,minmax(155px,1fr))', gap: 14 }}>
+                {displayed.map((book, i) => (
+                  <BookCard key={book.id} book={book} onBorrow={handleBorrow} onRemove={handleRemove} index={i} />
+                ))}
+              </div>
+            )}
+          </div>
+
+          {/* ── Right sidebar ── */}
+          <aside style={{ width: 242, flexShrink: 0, display: 'flex', flexDirection: 'column', gap: 14, animation: 'favSideIn 0.5s ease both', animationDelay: '0.15s' }}>
+
+            {/* Genre distribution */}
+            <div style={{ background: '#fff', borderRadius: 18, border: '1px solid #e2e8f0', padding: 18, boxShadow: '0 2px 16px rgba(0,0,0,0.05)' }}>
+              <h3 style={{ fontSize: 13, fontWeight: 700, color: '#0f172a', margin: '0 0 16px', display: 'flex', alignItems: 'center', gap: 7 }}>
+                <span style={{ fontSize: 17 }}>📊</span> Favorite Genres
+              </h3>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+                {(genres.length > 0 ? genres : [
+                  { name: 'Classic', count: 9, pct: 38 },
+                  { name: 'Fiction', count: 4, pct: 17 },
+                  { name: 'Fantasy', count: 3, pct: 13 },
+                ]).map(({ name, count, pct }) => {
+                  const cfg = GENRE_COLORS[name] ?? DEFAULT_GENRE;
+                  return (
+                    <div key={name}>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 5 }}>
+                        <span style={{ fontSize: 12, fontWeight: 600, color: '#374151' }}>{name}</span>
+                        <span style={{ fontSize: 10, background: cfg.bg, color: cfg.color, padding: '2px 8px', borderRadius: 8, fontWeight: 700 }}>{count} books</span>
+                      </div>
+                      <div style={{ background: '#f1f5f9', borderRadius: 999, height: 7, overflow: 'hidden' }}>
+                        <div style={{
+                          height: '100%', borderRadius: 999,
+                          background: cfg.bar,
+                          width: `${pct}%`,
+                          animation: 'favBarFill 0.9s cubic-bezier(0.4,0,0.2,1) both',
+                        }} />
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+
+            {/* Reading Mood */}
+            <div style={{ background: '#fff', borderRadius: 18, border: '1px solid #e2e8f0', padding: 18, boxShadow: '0 2px 16px rgba(0,0,0,0.05)' }}>
+              <h3 style={{ fontSize: 13, fontWeight: 700, color: '#0f172a', margin: '0 0 12px', display: 'flex', alignItems: 'center', gap: 7 }}>
+                <span style={{ fontSize: 17 }}>🎭</span> Reading Mood
+              </h3>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+                {MOODS.map(({ label, emoji, color, bg, border, glow }, i) => (
+                  <button key={label} onClick={() => setSelectedMood(selectedMood === label ? null : label)} style={{
+                    display: 'flex', alignItems: 'center', gap: 9,
+                    padding: '9px 13px', borderRadius: 12,
+                    border: `1.5px solid ${selectedMood === label ? color : border}`,
+                    background: selectedMood === label ? bg : '#fafafa',
+                    color: selectedMood === label ? color : '#64748b',
+                    cursor: 'pointer', textAlign: 'left',
+                    fontWeight: selectedMood === label ? 700 : 500, fontSize: 12,
+                    transition: 'all 0.2s ease',
+                    boxShadow: selectedMood === label ? `0 4px 14px ${glow}` : 'none',
+                    animation: 'favMoodPop 0.32s ease both',
+                    animationDelay: `${i * 0.045}s`,
+                  }}>
+                    <span style={{ fontSize: 17 }}>{emoji}</span>
+                    {label}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* Recommended */}
+            {recBooks.length > 0 && (
+              <div style={{ background: '#fff', borderRadius: 18, border: '1px solid #e2e8f0', padding: 18, boxShadow: '0 2px 16px rgba(0,0,0,0.05)' }}>
+                <h3 style={{ fontSize: 13, fontWeight: 700, color: '#0f172a', margin: '0 0 14px', display: 'flex', alignItems: 'center', gap: 7 }}>
+                  <span style={{ fontSize: 17 }}>💡</span> Recommended For You
+                </h3>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+                  {recBooks.map(book => (
+                    <div key={book.id}
+                      onClick={() => navigate(`/books/${book.id}`)}
+                      onMouseEnter={e => { (e.currentTarget as HTMLDivElement).style.background = '#f8fafc'; }}
+                      onMouseLeave={e => { (e.currentTarget as HTMLDivElement).style.background = 'transparent'; }}
+                      style={{ display: 'flex', gap: 10, alignItems: 'center', cursor: 'pointer', padding: 7, borderRadius: 12, transition: 'background 0.18s' }}
+                    >
+                      <div style={{ width: 40, height: 56, borderRadius: 8, overflow: 'hidden', flexShrink: 0, background: '#f1f5f9', boxShadow: '0 2px 8px rgba(0,0,0,0.1)' }}>
+                        {book.cover_url && <img src={book.cover_url} alt={book.title} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />}
+                      </div>
+                      <div style={{ flex: 1, minWidth: 0 }}>
+                        <p style={{ fontSize: 12, fontWeight: 700, color: '#111827', margin: '0 0 2px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{book.title}</p>
+                        <p style={{ fontSize: 10, color: '#9ca3af', margin: '0 0 5px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{book.author}</p>
+                        <button
+                          onClick={e => { e.stopPropagation(); void handleBorrow(book.id); }}
+                          disabled={!book.available}
+                          style={{
+                            fontSize: 10, padding: '3px 11px', borderRadius: 7, border: 'none',
+                            background: 'linear-gradient(135deg,#065f46,#059669)',
+                            color: '#fff', fontWeight: 700, cursor: 'pointer',
+                            opacity: book.available ? 1 : 0.5,
+                          }}
+                        >Borrow</button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+          </aside>
+        </div>
+      </div>
+    </>
   );
 }

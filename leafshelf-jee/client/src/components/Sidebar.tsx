@@ -1,6 +1,7 @@
 import { NavLink, Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../lib/auth';
 import Leaf from './Leaf';
+import { useT } from '../hooks/useT';
 
 function HomeIcon() {
   return (
@@ -132,27 +133,11 @@ function NavItem({
   );
 }
 
-function PlaceholderItem({
-  icon,
-  label,
-}: {
-  icon: React.ReactNode;
-  label: string;
-}) {
-  return (
-    <button
-      title={label}
-      className="flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm font-medium text-[#374151] [&>svg]:text-[#6B7280] w-full text-left cursor-default"
-    >
-      {icon}
-      <span>{label}</span>
-    </button>
-  );
-}
 
 export default function Sidebar() {
   const { user, signOut } = useAuth();
   const navigate = useNavigate();
+  const { t } = useT();
 
   async function handleSignOut() {
     await signOut();
@@ -164,43 +149,41 @@ export default function Sidebar() {
       {/* Logo */}
       <div className="px-5 py-6 flex-shrink-0">
         <Link to="/" className="flex items-center gap-2">
-          <Leaf className="w-8 h-8 flex-shrink-0" />
+          <Leaf className="w-9 h-9 flex-shrink-0" />
           <div>
             <div className="font-bold text-[18px] text-[#1B4332] leading-tight">LeafShelf</div>
-            <div className="text-[11px] text-[#6B7280] leading-tight">Online Library</div>
+            <div className="text-[11px] text-[#6B7280] leading-tight">{t('brand.tagline')}</div>
           </div>
         </Link>
       </div>
 
       {/* Nav */}
       <nav className="flex-1 px-3 space-y-0.5 overflow-y-auto pb-4">
-        <NavItem to="/" icon={<HomeIcon />} label="Discover" end />
-        <NavItem to="/categories" icon={<GridIcon />} label="Categories" />
-        <NavItem to="/books" icon={<BookOpenIcon />} label="Browse Books" />
+        <NavItem to="/" icon={<HomeIcon />} label={t('nav.discover')} end />
+        <NavItem to="/categories" icon={<GridIcon />} label={t('nav.categories')} />
+        <NavItem to="/books" icon={<BookOpenIcon />} label={t('nav.browse')} />
 
-        {user && (
-          <NavItem to="/library" icon={<BookmarkIcon />} label="My Library" />
-        )}
+        <NavItem to="/library" icon={<BookmarkIcon />} label={t('nav.library')} />
 
-        <NavItem to="/downloads" icon={<DownloadIcon />} label="Downloads" />
-        <PlaceholderItem icon={<HeadphonesIcon />} label="Audio Books" />
-        <NavItem to="/favorites" icon={<HeartIcon />} label="Favorites" />
+        <NavItem to="/downloads" icon={<DownloadIcon />} label={t('nav.downloads')} />
+        <NavItem to="/audiobooks" icon={<HeadphonesIcon />} label={t('nav.audiobooks')} />
+        <NavItem to="/favorites" icon={<HeartIcon />} label={t('nav.favorites')} />
 
         <div className="pt-2 mt-2 border-t border-gray-100 space-y-0.5">
-          <NavItem to="/settings" icon={<SettingsIcon />} label="Settings" />
-          <NavItem to="/support" icon={<SupportIcon />} label="Support" />
+          <NavItem to="/settings" icon={<SettingsIcon />} label={t('nav.settings')} />
+          <NavItem to="/support" icon={<SupportIcon />} label={t('nav.support')} />
 
           {user ? (
             <button
               onClick={() => void handleSignOut()}
-              title="Logout"
+              title={t('nav.logout')}
               className="flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm font-medium text-[#374151] [&>svg]:text-[#6B7280] hover:bg-red-50 hover:text-red-600 hover:[&>svg]:text-red-500 w-full text-left transition-all"
             >
               <LogoutIcon />
-              <span>Logout</span>
+              <span>{t('nav.logout')}</span>
             </button>
           ) : (
-            <NavItem to="/login" icon={<LoginIcon />} label="Sign In" />
+            <NavItem to="/login" icon={<LoginIcon />} label={t('topbar.signIn')} />
           )}
         </div>
       </nav>
@@ -209,12 +192,12 @@ export default function Sidebar() {
       <div className="px-4 pb-4 flex-shrink-0">
         <div className="bg-white border border-[#E5E7EB] rounded-xl p-4">
           <div className="text-xl leading-none mb-2">📚🌿</div>
-          <p className="text-[13px] font-bold text-[#1B4332]">Join LeafShelf Premium</p>
+          <p className="text-[13px] font-bold text-[#1B4332]">{t('premium.title')}</p>
           <p className="text-[11px] text-[#6B7280] mt-1 mb-3 leading-snug">
-            Unlock unlimited reads and exclusive perks.
+            {t('premium.sub')}
           </p>
-          <button className="w-full bg-[#1B4332] text-white rounded-lg py-2 text-[13px] font-semibold hover:bg-[#163728] transition-colors">
-            Upgrade Now
+          <button type="button" className="w-full bg-[#1B4332] text-white rounded-lg py-2 text-[13px] font-semibold hover:bg-[#163728] transition-colors">
+            {t('premium.cta')}
           </button>
         </div>
       </div>

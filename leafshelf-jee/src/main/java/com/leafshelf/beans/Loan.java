@@ -1,29 +1,39 @@
 package com.leafshelf.beans;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import java.io.Serializable;
-import java.sql.Timestamp;
+import java.time.Instant;
 
-/**
- * Loan JavaBean — includes joined book fields when read by LoanDAO.listByUser().
- */
 public class Loan implements Serializable {
-
     private long id;
-    private long userId;
-    private long bookId;
-    private Timestamp borrowedAt;
-    private Timestamp dueAt;
-    private Timestamp returnedAt;
-    private String status;            // 'active' or 'returned'
 
-    // joined book fields (only populated by LoanDAO.listByUser)
+    @JsonProperty("user_id")
+    private long userId;
+
+    @JsonProperty("book_id")
+    private long bookId;
+
+    @JsonProperty("borrowed_at")
+    private Instant borrowedAt;
+
+    @JsonProperty("due_at")
+    private Instant dueAt;
+
+    @JsonProperty("returned_at")
+    private Instant returnedAt;
+
+    private String status;
+
+    // Book info joined for display
     private String title;
     private String author;
-    private String coverUrl;
-    private String category;
-    private Integer pages;
 
-    public Loan() { }
+    @JsonProperty("cover_url")
+    private String coverUrl;
+
+    public Loan() {}
+
+    public boolean isActive() { return "active".equals(status); }
 
     public long getId() { return id; }
     public void setId(long id) { this.id = id; }
@@ -34,14 +44,14 @@ public class Loan implements Serializable {
     public long getBookId() { return bookId; }
     public void setBookId(long bookId) { this.bookId = bookId; }
 
-    public Timestamp getBorrowedAt() { return borrowedAt; }
-    public void setBorrowedAt(Timestamp borrowedAt) { this.borrowedAt = borrowedAt; }
+    public Instant getBorrowedAt() { return borrowedAt; }
+    public void setBorrowedAt(Instant borrowedAt) { this.borrowedAt = borrowedAt; }
 
-    public Timestamp getDueAt() { return dueAt; }
-    public void setDueAt(Timestamp dueAt) { this.dueAt = dueAt; }
+    public Instant getDueAt() { return dueAt; }
+    public void setDueAt(Instant dueAt) { this.dueAt = dueAt; }
 
-    public Timestamp getReturnedAt() { return returnedAt; }
-    public void setReturnedAt(Timestamp returnedAt) { this.returnedAt = returnedAt; }
+    public Instant getReturnedAt() { return returnedAt; }
+    public void setReturnedAt(Instant returnedAt) { this.returnedAt = returnedAt; }
 
     public String getStatus() { return status; }
     public void setStatus(String status) { this.status = status; }
@@ -54,12 +64,4 @@ public class Loan implements Serializable {
 
     public String getCoverUrl() { return coverUrl; }
     public void setCoverUrl(String coverUrl) { this.coverUrl = coverUrl; }
-
-    public String getCategory() { return category; }
-    public void setCategory(String category) { this.category = category; }
-
-    public Integer getPages() { return pages; }
-    public void setPages(Integer pages) { this.pages = pages; }
-
-    public boolean isActive() { return "active".equals(status); }
 }

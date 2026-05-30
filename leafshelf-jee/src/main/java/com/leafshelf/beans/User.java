@@ -1,32 +1,25 @@
 package com.leafshelf.beans;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-
+import com.fasterxml.jackson.annotation.JsonProperty;
 import java.io.Serializable;
-import java.sql.Timestamp;
+import java.time.Instant;
 
-/**
- * User JavaBean. Plain POJO with no-arg constructor and getters/setters.
- * Used by JSP via &lt;jsp:useBean&gt; and by servlets as a JSON DTO.
- */
 public class User implements Serializable {
-
     private long id;
     private String name;
     private String email;
-    private String passwordHash;     // never serialized to JSON
+
+    @JsonIgnore
+    private String passwordHash;
+
+    @JsonProperty("created_at")
+    private Instant createdAt;
+
+    @JsonProperty("is_admin")
     private boolean isAdmin;
-    private Timestamp createdAt;
 
-    public User() { }
-
-    public User(long id, String name, String email, String passwordHash, Timestamp createdAt) {
-        this.id = id;
-        this.name = name;
-        this.email = email;
-        this.passwordHash = passwordHash;
-        this.createdAt = createdAt;
-    }
+    public User() {}
 
     public long getId() { return id; }
     public void setId(long id) { this.id = id; }
@@ -37,13 +30,12 @@ public class User implements Serializable {
     public String getEmail() { return email; }
     public void setEmail(String email) { this.email = email; }
 
-    @JsonIgnore
     public String getPasswordHash() { return passwordHash; }
     public void setPasswordHash(String passwordHash) { this.passwordHash = passwordHash; }
 
-    public boolean getIsAdmin() { return isAdmin; }
-    public void setIsAdmin(boolean isAdmin) { this.isAdmin = isAdmin; }
+    public Instant getCreatedAt() { return createdAt; }
+    public void setCreatedAt(Instant createdAt) { this.createdAt = createdAt; }
 
-    public Timestamp getCreatedAt() { return createdAt; }
-    public void setCreatedAt(Timestamp createdAt) { this.createdAt = createdAt; }
+    public boolean isAdmin() { return isAdmin; }
+    public void setAdmin(boolean isAdmin) { this.isAdmin = isAdmin; }
 }

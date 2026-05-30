@@ -6,40 +6,30 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
 import java.io.IOException;
-import java.util.Set;
 
-/**
- * Permits the Vite dev server (http://localhost:5173) to call the API with credentials.
- * In production both apps are same-origin (served from the WAR), so CORS is a no-op there.
- */
-@WebFilter(urlPatterns = {"/api/*"})
+@WebFilter("/*")
 public class CorsFilter implements Filter {
 
-    private static final Set<String> ALLOWED_ORIGINS = Set.of(
-            "http://localhost:5173",
-            "http://127.0.0.1:5173"
-    );
-
     @Override
-    public void doFilter(ServletRequest req, ServletResponse resp, FilterChain chain)
+    public void doFilter(ServletRequest req, ServletResponse res, FilterChain chain)
             throws IOException, ServletException {
-        HttpServletRequest http = (HttpServletRequest) req;
-        HttpServletResponse out = (HttpServletResponse) resp;
+        HttpServletRequest  request  = (HttpServletRequest)  req;
+        HttpServletResponse response = (HttpServletResponse) res;
 
-        String origin = http.getHeader("Origin");
-        if (origin != null && ALLOWED_ORIGINS.contains(origin)) {
-            out.setHeader("Access-Control-Allow-Origin", origin);
-            out.setHeader("Vary", "Origin");
-            out.setHeader("Access-Control-Allow-Credentials", "true");
-            out.setHeader("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
-            out.setHeader("Access-Control-Allow-Headers", "Content-Type, Authorization, Accept");
-            out.setHeader("Access-Control-Max-Age", "3600");
+        String origin = request.getHeader("Origin");
+        if (origin != null) {
+            response.setHeader("Access-Control-Allow-Origin", origin);
+            response.setHeader("Access-Control-Allow-Credentials", "true");
+            response.setHeader("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
+            response.setHeader("Access-Control-Allow-Headers", "Content-Type, Authorization");
+            response.setHeader("Access-Control-Max-Age", "3600");
         }
 
-        if ("OPTIONS".equalsIgnoreCase(http.getMethod())) {
-            out.setStatus(HttpServletResponse.SC_NO_CONTENT);
+        if ("OPTIONS".equalsIgnoreCase(request.getMethod())) {
+            response.setStatus(HttpServletResponse.SC_OK);
             return;
         }
-        chain.doFilter(req, resp);
+
+        chain.doFilter(req, res);
     }
 }

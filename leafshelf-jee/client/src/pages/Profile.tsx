@@ -1,11 +1,11 @@
 import { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { myLoans } from '../lib/api';
+import { myLoans, getLocalBorrowed, getLocalReturned } from '../lib/api';
 import { useAuth } from '../lib/auth';
 import type { Loan } from '../lib/types';
 
 export default function Profile() {
-  const { user, signOut } = useAuth();
+  const { user, signOut, loading } = useAuth();
   const navigate = useNavigate();
   const [loans, setLoans] = useState<Loan[]>([]);
 
@@ -13,13 +13,43 @@ export default function Profile() {
     if (user) myLoans().then(setLoans).catch(() => setLoans([]));
   }, [user]);
 
-  if (!user) {
-    navigate('/login');
-    return null;
+  if (!loading && !user) {
+    return (
+      <div className="max-w-2xl mx-auto space-y-6">
+        <div className="bg-white rounded-card border border-border p-8 shadow-soft text-center">
+          <p className="text-4xl mb-3">👤</p>
+          <h1
+            className="text-2xl font-bold text-ink mb-2"
+            style={{ fontFamily: "'Playfair Display', Georgia, serif" }}
+          >
+            Profile
+          </h1>
+          <p className="text-sm text-muted mb-5">Sign in to view your account details and reading history.</p>
+          <button
+            type="button"
+            onClick={() => navigate('/login')}
+            className="px-5 py-2.5 bg-[#1B4332] text-white text-sm font-semibold rounded-xl hover:bg-[#163828] transition-colors"
+          >
+            Sign In
+          </button>
+        </div>
+      </div>
+    );
   }
+
+  if (!user) return null;
 
   const active  = loans.filter(l => l.active).length;
   const returned = loans.filter(l => !l.active).length;
+  const daysActive = (() => {
+    const borrowed = getLocalBorrowed();
+    const returnedLocal = getLocalReturned();
+    const dates = new Set([
+      ...borrowed.map(b => b.borrowedAt),
+      ...returnedLocal.map(b => b.returnedAt),
+    ]);
+    return Math.max(1, dates.size);
+  })();
   const memberSince = new Date(user.created_at).toLocaleDateString('en-US', {
     month: 'long', year: 'numeric',
   });
@@ -70,7 +100,7 @@ export default function Profile() {
         {[
           { label: 'Currently Reading', value: active,    bg: 'bg-blue-50',   text: 'text-blue-700',   icon: '📖' },
           { label: 'Books Completed',   value: returned,  bg: 'bg-green-50',  text: 'text-green-700',  icon: '✅' },
-          { label: 'Days Active',       value: 7,         bg: 'bg-amber-50',  text: 'text-amber-700',  icon: '🔥' },
+          { label: 'Days Active',       value: daysActive, bg: 'bg-amber-50',  text: 'text-amber-700',  icon: '🔥' },
           { label: 'Genres Explored',   value: new Set(loans.map(l => l.category).filter(Boolean)).size, bg: 'bg-purple-50', text: 'text-purple-700', icon: '🎭' },
         ].map(s => (
           <div key={s.label} className={`${s.bg} rounded-card border border-transparent p-4 text-center`}>

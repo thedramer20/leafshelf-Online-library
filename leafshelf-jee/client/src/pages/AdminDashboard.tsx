@@ -14,7 +14,7 @@ import {
   YAxis,
 } from 'recharts';
 import { getAdminStats } from '../lib/api';
-import { useAuth } from '../lib/auth';
+import { useAdminGuard } from '../hooks/useAdminGuard';
 import type { AdminStats } from '../lib/types';
 
 // ── Placeholder data ──────────────────────────────────────────────
@@ -84,21 +84,18 @@ function fmt(iso: string | null | undefined) {
 
 // ── Main component ────────────────────────────────────────────────
 export default function AdminDashboard() {
-  const { user, loading: authLoading } = useAuth();
+  useAdminGuard();
   const navigate = useNavigate();
   const [stats, setStats] = useState<AdminStats | null>(null);
   const [loadErr, setLoadErr] = useState<string | null>(null);
 
   useEffect(() => {
-    if (authLoading) return;
-    if (!user) { navigate('/login'); return; }
-    if (!user.is_admin) { navigate('/'); return; }
     getAdminStats()
       .then(setStats)
       .catch(() => setLoadErr('Failed to load dashboard data.'));
-  }, [user, authLoading, navigate]);
+  }, []);
 
-  if (authLoading || (!stats && !loadErr)) {
+  if (!stats && !loadErr) {
     return (
       <div className="flex items-center justify-center h-full">
         <div className="text-gray-400 text-sm animate-pulse">Loading dashboard…</div>
@@ -123,13 +120,40 @@ export default function AdminDashboard() {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="font-serif text-[28px] font-bold text-[#1B4332]">Welcome back, {user?.name?.split(' ')[0]} 🌿</h1>
+          <h1 className="font-serif text-[28px] font-bold text-[#1B4332]">Welcome back, Admin 🌿</h1>
           <p className="text-sm text-[#6B7280] mt-1">Here's what's happening in your library today.</p>
         </div>
-        <button className="flex items-center gap-2 border border-[#E5E7EB] rounded-lg px-4 py-2.5 text-sm text-[#374151] hover:bg-gray-50">
+        <button
+          onClick={() => {
+            if (!stats) return;
+            const lines = [
+              'Metric,Value',
+              `Total Books,${stats.totalBooks}`,
+              `Total Users,${stats.totalUsers}`,
+              `Issued Books,${stats.issuedBooks}`,
+              `Overdue Books,${stats.overdueBooks}`,
+              `Total Loans,${stats.totalLoans}`,
+              '',
+              'Category,Books',
+              ...stats.categoryDistribution.map(c => `${c.name},${c.count}`),
+              '',
+              'User,Book,Borrowed Date,Due Date,Status',
+              ...stats.recentLoans.map(l =>
+                `"${l.userName}","${l.bookTitle}",${l.borrowedAt ? new Date(l.borrowedAt).toLocaleDateString() : ''},${l.dueAt ? new Date(l.dueAt).toLocaleDateString() : ''},${l.status}`
+              ),
+            ];
+            const blob = new Blob([lines.join('\n')], { type: 'text/csv' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `leafshelf-report-${new Date().toISOString().slice(0, 10)}.csv`;
+            a.click();
+            URL.revokeObjectURL(url);
+          }}
+          className="flex items-center gap-2 border border-[#E5E7EB] rounded-lg px-4 py-2.5 text-sm text-[#374151] hover:bg-gray-50 transition-colors"
+        >
           <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5M16.5 12L12 16.5m0 0L7.5 12m4.5 4.5V3" /></svg>
           Export Report
-          <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" /></svg>
         </button>
       </div>
 
@@ -273,7 +297,7 @@ export default function AdminDashboard() {
       <div className="bg-white rounded-2xl border border-gray-100 p-5 shadow-sm">
         <div className="flex items-center justify-between mb-4">
           <h2 className="text-base font-semibold text-gray-900">Recent Borrow Requests</h2>
-          <button className="text-xs text-[#1B4332] hover:underline font-medium">View all →</button>
+          <button onClick={() => navigate('/admin/borrowings')} className="text-xs text-[#1B4332] hover:underline font-medium">View all →</button>
         </div>
 
         {stats.recentLoans.length === 0 ? (
@@ -311,7 +335,7 @@ export default function AdminDashboard() {
                       <StatusBadge status={loan.status} />
                     </td>
                     <td className="py-2.5">
-                      <button className="text-[11px] font-semibold text-blue-600 hover:text-blue-800 hover:underline transition-colors">
+                      <button onClick={() => navigate('/admin/borrowings')} className="text-[11px] font-semibold text-blue-600 hover:text-blue-800 hover:underline transition-colors">
                         View
                       </button>
                     </td>
@@ -330,14 +354,14 @@ export default function AdminDashboard() {
           <h2 className="text-base font-semibold text-gray-900 mb-4">Quick Actions</h2>
           <div className="grid grid-cols-2 gap-3">
             {[
-              { label: 'Add New Book',  icon: '📚' },
-              { label: 'Add New User',  icon: '👤' },
-              { label: 'Issue Book',    icon: '📤' },
-              { label: 'View Overdues', icon: '⚠️' },
+              { label: 'Add New Book',  icon: '📚', path: '/admin/books' },
+              { label: 'Add New User',  icon: '👤', path: '/admin/users' },
+              { label: 'Issue Book',    icon: '📤', path: '/admin/borrowings' },
+              { label: 'View Overdues', icon: '⚠️', path: '/admin/borrowings' },
             ].map(a => (
               <button
                 key={a.label}
-                onClick={() => navigate('/admin')}
+                onClick={() => navigate(a.path)}
                 className="flex flex-col items-center gap-2 p-4 border border-[#E5E7EB] rounded-lg text-sm hover:bg-[#F9FAFB] transition-colors"
               >
                 <span className="text-xl">{a.icon}</span>

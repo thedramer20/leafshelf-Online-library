@@ -1,28 +1,38 @@
 package com.leafshelf.beans;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import java.io.Serializable;
-import java.sql.Timestamp;
+import java.time.Instant;
 
-/**
- * Book JavaBean. Used by JSP via &lt;jsp:useBean&gt; and as a JSON DTO from servlets.
- */
 public class Book implements Serializable {
-
     private long id;
     private String title;
     private String author;
     private String isbn;
     private String description;
     private String category;
+
+    @JsonProperty("cover_url")
     private String coverUrl;
+
+    @JsonProperty("total_copies")
     private int totalCopies;
+
+    @JsonProperty("available_copies")
     private int availableCopies;
+
+    @JsonProperty("published_year")
     private Integer publishedYear;
+
     private Integer pages;
     private double rating;
-    private Timestamp createdAt;
 
-    public Book() { }
+    @JsonProperty("created_at")
+    private Instant createdAt;
+
+    public Book() {}
+
+    public boolean isAvailable() { return availableCopies > 0; }
 
     public long getId() { return id; }
     public void setId(long id) { this.id = id; }
@@ -60,8 +70,6 @@ public class Book implements Serializable {
     public double getRating() { return rating; }
     public void setRating(double rating) { this.rating = rating; }
 
-    public Timestamp getCreatedAt() { return createdAt; }
-    public void setCreatedAt(Timestamp createdAt) { this.createdAt = createdAt; }
-
-    public boolean isAvailable() { return availableCopies > 0; }
+    public Instant getCreatedAt() { return createdAt; }
+    public void setCreatedAt(Instant createdAt) { this.createdAt = createdAt; }
 }

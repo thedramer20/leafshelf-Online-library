@@ -1,0 +1,10 @@
+# Claude Code internal memory — not project code
+.claude/
+.mcp.json
+
+# Server log files
+leafshelf-jee/jetty.log
+leafshelf-jee/jetty-err.log
+leafshelf-jee/jetty-out.log
+leafshelf-jee/startup-stdout.log
+leafshelf-jee/startup-stderr.log

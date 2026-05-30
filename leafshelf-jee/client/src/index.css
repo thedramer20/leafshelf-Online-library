@@ -206,3 +206,34 @@ input:-webkit-autofill:active {
   from { opacity: 0; transform: translateY(5px); }
   to   { opacity: 1; transform: translateY(0); }
 }
+
+/* ── Respect user's motion preferences ───────────────────────────────────── */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* ── Mobile responsive helpers (≤ 768px) ────────────────────────────────── */
+@media (max-width: 768px) {
+  /* Hide page-level sidebar panels (Downloads, Audiobooks) — keep the nav sidebar */
+  main aside {
+    display: none !important;
+  }
+  /* Reduce page padding on small screens */
+  main .page-content {
+    padding: 12px !important;
+    gap: 14px !important;
+  }
+  /* Single-column grids on mobile */
+  .mobile-grid-1 {
+    grid-template-columns: 1fr !important;
+  }
+  /* Error banner full-width */
+  .api-error-banner {
+    border-radius: 0 !important;
+  }
+}
