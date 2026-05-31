@@ -244,7 +244,7 @@ export default function Audiobooks() {
   useEffect(() => {
     let alive = true;
     listBooks()
-      .then(b => { if (alive) setBooks(b); })
+      .then(b => { if (alive) setBooks(Array.isArray(b) ? b : []); })
       .catch(e => { if (alive) setApiError(apiErrorMessage(e)); })
       .finally(() => { if (alive) setLoading(false); });
     return () => { alive = false; };

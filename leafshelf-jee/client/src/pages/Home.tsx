@@ -283,8 +283,10 @@ export default function Home() {
     Promise.all([listBooks(), listCategories()])
       .then(([b, c]) => {
         if (!alive) return;
-        setBooks(b); setCategories(c);
-        writeCached('home:books', b); writeCached('home:categories', c);
+        const safeB = Array.isArray(b) ? b : [];
+        const safeC = Array.isArray(c) ? c : [];
+        setBooks(safeB); setCategories(safeC);
+        writeCached('home:books', safeB); writeCached('home:categories', safeC);
       })
       .catch(e => { if (alive) setApiError(apiErrorMessage(e)); })
       .finally(() => { if (alive) setLoading(false); });
