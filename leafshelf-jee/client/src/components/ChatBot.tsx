@@ -480,7 +480,10 @@ export default function ChatBot() {
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState('');
   const [typing, setTyping] = useState(false);
-  const [allBooks, setAllBooks] = useState<Book[]>(() => readCached<Book[]>('books') ?? []);
+  const [allBooks, setAllBooks] = useState<Book[]>(() => {
+    const c = readCached<Book[]>('books');
+    return Array.isArray(c) ? c : [];
+  });
   const [unread, setUnread] = useState(0);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
@@ -490,7 +493,7 @@ export default function ChatBot() {
 
   useEffect(() => {
     if (allBooks.length === 0) {
-      void listBooks().then(b => setAllBooks(b)).catch(() => null);
+      void listBooks().then(b => setAllBooks(Array.isArray(b) ? b : [])).catch(() => null);
     }
   }, [allBooks.length]);
 

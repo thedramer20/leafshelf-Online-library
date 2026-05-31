@@ -219,7 +219,7 @@ export default function Books() {
     Promise.all([listBooks(params), listCategories()])
       .then(([b, cats]) => {
         if (!alive) return;
-        setBooks(b); setCategories(cats);
+        setBooks(Array.isArray(b) ? b : []); setCategories(Array.isArray(cats) ? cats : []);
         writeCached(cacheKey, b);
         writeCached('books:categories', cats);
         setApiError(null);
